@@ -1,0 +1,34 @@
+{
+
+  "manifest_version": 2,
+  "name": "MiniTranslate",
+  "version": "1.0",
+
+  "description": "Translates a few words on the page in order to learn languages without much effort.",
+
+  "background": {
+      "scripts": [
+        "bower_components/localStorageDB/localstoragedb.js",
+        "wordoptimization.js",
+        "background.js"
+      ]
+  },
+
+  "browser_action" : {
+      "default_icon": "icons/favicon.png",
+      "default_popup": "popup.html",
+      "default_title": "MiniTranslate - Chinese"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["translate.js"]
+    }
+  ],
+
+  "permissions": [
+    "storage"
+  ]
+
+}
