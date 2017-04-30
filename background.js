@@ -81,7 +81,7 @@ function handleMessage (request, sender, sendResponse) {
         return; // TODO or sendResponse with the original word (request) back?
     }
 
-    sendResponse(wordSelection(result, searchWord));
+    sendResponse(wordSortation(result, searchWord));
 
 }
 

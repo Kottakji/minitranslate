@@ -31,7 +31,7 @@ chrome.storage.sync.get("active", function (result) {
                 console.log(match);
                 chrome.extension.sendMessage(match.trim(), function (response) {
                     console.log(response);
-                    element.innerText = element.innerText.replace(match, " " + response + " "); // Add the two blank lines again b/c our pattern
+                    element.innerHTML = element.innerHTML.replace(match, word.replaceWord(response));
                 });
             }
 
