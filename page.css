@@ -1,0 +1,7 @@
+.character {
+    cursor: help;
+}
+
+.character:hover {
+    color: purple;
+}

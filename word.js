@@ -3,10 +3,15 @@ var word = {
 
     replaceWord: function (originalWord, array, type) {
 
-        var text = array[0][type];
+        var text = array[0][type]; // Simplified or Traditional
         text = " " + text + " "; // Add the two blank lines again b/c our pattern removes the spaces
 
-        var element = originalWord + "<span> (" + text +") </span>";
+        var tooltipText = "";
+        for (var i = 0; i < array.length; i++) {
+            tooltipText += array[i][type] + ": " + array[i]["english"] + "\n";
+        }
+
+        var element = originalWord + "<span class='character' title='" + tooltipText + "'> (" + text + ") </span>";
 
         return element;
     }
