@@ -76,4 +76,23 @@ window.onload = function () {
 
         });
     });
+
+    // Change between simplified and traditional
+    var simplified = document.getElementById("simplified");
+    var traditional = document.getElementById("traditional");
+    chrome.storage.sync.get("type", function (result) {
+        if (result["type"] == "simplified") {
+            simplified.checked = true;
+        } else {
+            traditional.checked = true;
+        }
+    });
+
+    simplified.onclick = function () {
+        chrome.storage.sync.set({"type": "simplified"});
+    };
+
+    traditional.onclick = function () {
+        chrome.storage.sync.set({"type": "traditional"});
+    };
 };

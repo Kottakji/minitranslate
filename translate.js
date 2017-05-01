@@ -4,37 +4,44 @@ chrome.storage.sync.get("active", function (result) {
         chrome.storage.sync.get("amount", function (result) {
             var amount = result["amount"];
 
-            console.log('loaded');
+            chrome.storage.sync.get("type", function (result) {
+                var type = result["type"]; // Traditional or Simplified
 
-            // Get some nouns from the text and translate a few of them to the selected language
-            var pattern = / ([a-z]\w{4,}) /gm;
+                console.log('loaded');
 
-            var p = document.getElementsByTagName('p');
-            first_loop:
-                for (var i = 0; i < p.length; i++) {
+                // Get some nouns from the text and translate a few of them to the selected language
+                var pattern = / ([a-z]\w{4,}) /gm;
 
-                    var matches = p[i].innerText.match(pattern);
-                    if (matches == null) {
-                        continue;
-                    }
-                    // First match = all
-                    for (var j = 1; j < matches.length; j++) {
-                        customReplace(matches[j], p[j-1]);
+                var p = document.getElementsByTagName('p');
+                first_loop:
+                    for (var i = 0; i < p.length; i++) {
 
-                        if (j > (amount -1)) {
-                            break first_loop;
+                        var matches = p[i].innerText.match(pattern);
+                        if (matches == null) {
+                            continue;
+                        }
+                        // First match = all
+                        for (var j = 1; j < matches.length; j++) {
+                            customReplace(matches[j], p[j-1]);
+
+                            if (j > (amount -1)) {
+                                break first_loop;
+                            }
                         }
                     }
+
+                function customReplace(match, element) {
+                    //TODO somehow it doesn't replace all matches
+                    //TODO (not here) if it's an adjective, 1 character is more important. If it is a noun, 2 chars is more important.
+                    console.log(match);
+                    chrome.extension.sendMessage(match.trim(), function (response) {
+                        console.log(response);
+                        element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
+                    });
                 }
 
-            function customReplace(match, element) {
-                console.log(match);
-                chrome.extension.sendMessage(match.trim(), function (response) {
-                    element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response));
-                });
-            }
-
-            console.log('finish');
+                console.log('finish');
+            });
         });
     }
 });
