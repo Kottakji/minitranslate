@@ -19,7 +19,7 @@ chrome.storage.sync.get("active", function (result) {
                     }
                     // First match = all
                     for (var j = 1; j < matches.length; j++) {
-                        customReplace(matches[j], p[j]);
+                        customReplace(matches[j], p[j-1]);
 
                         if (j > (amount -1)) {
                             break first_loop;
@@ -30,8 +30,7 @@ chrome.storage.sync.get("active", function (result) {
             function customReplace(match, element) {
                 console.log(match);
                 chrome.extension.sendMessage(match.trim(), function (response) {
-                    console.log(response);
-                    element.innerHTML = element.innerHTML.replace(match, word.replaceWord(response));
+                    element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response));
                 });
             }
 

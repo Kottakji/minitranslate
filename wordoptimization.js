@@ -1,4 +1,4 @@
-function searchWordOptimization(word) {
+function searchWordOptimization (word) {
 
     // If we want to support more languages, change it here
 
@@ -10,7 +10,7 @@ function searchWordOptimization(word) {
     // Source: http://users.monash.edu/~damian/papers/HTML/Plurals.html
 
     var result = [];
-    result.push(word);
+    result.push(word); // Always added!
 
     result.push(word.replace(/(\w+?)(as|ae|ata)\b/, "$2a"));
 
@@ -70,43 +70,193 @@ function searchWordOptimization(word) {
 
 // Returns a sorted array from the selected array
 // Later we might show the first three or so additional meanings, as in Chinese there might be alternative correct ones
-function wordSortation(itemArray, searchWord) {
+function wordSortation (dictionary, itemArray, searchWords) {
 
-    // Our comparing function
-    var compare = function(dictResult) {
+    // Give each word a value
+    // If the Hanzi is short, that is better
+    // If the English is short, that is better
+    // If it matches correctly or between / it is good
+    var compare = function (entry) {
 
-        if (dictResult === searchWord) {
+        var count = 0;
+
+        switch (entry["traditional"].length) {
+            case 0:
+                count += 0;
+                break;
+            case 1:
+                count += 15;
+                break;
+            case 2:
+                count += 36;
+                break;
+            case 3:
+                count += 50;
+                break;
+            case 4:
+                count += 60;
+                break;
+            default:
+                count += 70;
+        }
+
+        switch (entry["english"].split("/").length) {
+            case 0:
+                count += 0;
+                break;
+            case 1:
+                count += 0;
+                break;
+            case 2:
+                count += 2;
+                break;
+            case 3:
+                count += 4;
+                break;
+            case 4:
+                count += 8;
+                break;
+            case 5:
+                count += 14;
+                break;
+            default:
+                count += 20;
+        }
+
+        for (var i = 0; i < searchWords.length; i++) {
+
+            /**
+             *  The order is based on this scheme
+             *  popular
+                popular/something
+                something/popular/something
+                something/something/popular
+
+                popular something/something
+                something/popular something/something
+                something/something/popular something
+                something/something/something popular
+                popularly
+             */
+
+            if (entry["english"] === searchWords[i]) {
+
+                count = 0;
+                continue;
+            }
+
+            var r1 = new RegExp("[^\/]\b"+ searchWords[i] +"\/");
+            if (r1.test(entry["english"])) {
+
+                count -= 15;
+                break;
+            }
+
+            var r2 = new RegExp("\/" + searchWords[i] + "\/");
+            if (r2.test(entry["english"])) {
+
+                count -= 13;
+                break;
+            }
+
+            var r3 = new RegExp("\/" + searchWords[i] + "\b[^ \w]");
+            if (r3.test(entry["english"])) {
+
+                count -= 11;
+                break;
+            }
+
+            var r4 = new RegExp("[^\/]\b" + searchWords[i] + "\b ");
+            if (r4.test(entry["english"])) {
+
+                count -= 9;
+                break;
+            }
+
+            var r5 = new RegExp("\/\b" + searchWords[i] + "\b .+?(?=\/)");
+            if (r5.test(entry["english"])) {
+
+                count -= 7;
+                break;
+            }
+
+            var r6 = new RegExp("\/\b" + searchWords[i] + "\b .+?");
+            if (r6.test(entry["english"])) {
+
+                count -= 5;
+                break;
+            }
+
+            var r7 = new RegExp("\b" + searchWords[i] + "\b");
+            if (r7.test(entry["english"])) {
+
+                count -= 3;
+                break;
+            }
+        }
+
+        return count;
+    };
+
+
+    itemArray.sort(function (a, b) {
+        // The English text in the dict is split by /, so match a full string on it
+        // Order: Just the word.
+        if (compare(a) > compare(b)) {
 
             return 1;
         }
-        // TODO refer -> referring matches, make sure the beginning and end of the string only matches
-        // Match the end of the string with a /
-        var regex1 = new RegExp("\b" + searchWord + "\b\/");
-        if (regex1.test(dictResult)) {
 
-            return 200 + dictResult.length;
+        return -1;
+    });
+    
+    return searchWordRelevancy(dictionary, itemArray.slice(0,5), searchWords);
+}
+
+// Search each possible word in the database to check for the occurrences and relevancy
+function searchWordRelevancy (dictionary, itemArray, searchWords) {
+
+    // Double search here, but couldn't find a way to do it directly within the query...
+    var result = dictionary.queryAll("items", {
+        query: function (row) {
+            for (var i = 0; i < itemArray.length; i++) {
+                if (row.traditional.indexOf(itemArray[i]["traditional"]) !== -1) {
+
+                    return true
+                }
+            }
+
+            return false;
         }
+    });
 
-        // Match the beginning of the string with a /
-        var regex2 = new RegExp("\/\b" + searchWord + "\b");
-        if (regex2.test(dictResult)) {
+    // Check if the traditional occurrences and then check if the english search word is in it
+    for (var r = 0; r < result.length; r++) {
+        for (var i = 0; i < itemArray.length; i++) {
+            if (result[r]["traditional"].indexOf(itemArray[i]["traditional"]) !== -1) {
+                for (var s = 0; s < searchWords.length; s++) {
+                    if (result[r]["english"].indexOf(searchWords[s]) !== -1) {
+                        if (typeof itemArray[i]["relevance"] !== "undefined") {
 
-            return 300 + dictResult.length;
+                            itemArray[i]["relevance"]++;
+                        } else {
+
+                            itemArray[i]["relevance"] = 0;
+                        }
+                    }
+                }
+            }
         }
+    }
 
-        return 400;
-    };
-
-    itemArray.sort(function(a, b) {
-        // The English text in the dict is split by /, so match a full string on it
-        // Order: Just the word.
-        if (compare(a["english"]) < compare(b["english"])) {
+    itemArray.sort(function (a, b) {
+        if (a["relevance"] > b["relevance"]) {
 
             return -1;
         }
 
         return 1;
     });
-    
-    return itemArray.slice(0,3);
+
+    return itemArray;
 }

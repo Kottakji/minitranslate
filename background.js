@@ -62,14 +62,16 @@ if (dictionary.tableCount() == 0) {
 
 function handleMessage (request, sender, sendResponse) {
 
-    var searchWord = searchWordOptimization(request);
+    var searchWords = searchWordOptimization(request);
 
     // TODO improve the search function a bit
     var result = dictionary.queryAll("items", {
         query: function (row) {
-            if (row.english.indexOf(searchWord) !== -1) {
+            for (var i = 0; i < searchWords.length; i++) {
+                if (row.english.indexOf(searchWords[i]) !== -1) {
 
-                return true;
+                    return true
+                }
             }
 
             return false;
@@ -81,7 +83,7 @@ function handleMessage (request, sender, sendResponse) {
         return; // TODO or sendResponse with the original word (request) back?
     }
 
-    sendResponse(wordSortation(result, searchWord));
+    sendResponse(wordSortation(dictionary, result, searchWords));
 
 }
 
