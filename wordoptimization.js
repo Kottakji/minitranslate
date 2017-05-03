@@ -195,6 +195,8 @@ function wordSortation (dictionary, itemArray, searchWords) {
             }
         }
 
+        entry["count"] = count;
+
         return count;
     };
 
@@ -250,13 +252,27 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
     }
 
     itemArray.sort(function (a, b) {
-        if (a["relevance"] > b["relevance"]) {
+        // Need to have at least some relevance before we measure the total score (count and relevance)
+        if (a["relevance"] == 0 && b["relevance"] > 0) {
+
+            return 1;
+        }
+
+        if (a["relevance"] > 0 && b["relevance"] == 0) {
 
             return -1;
         }
 
-        return 1;
+        // High count is bad, high relevance is good. The lowest total is good.
+        if (a["count"] - a["relevance"] > b["count"] - b["relevance"]) {
+
+            return 1;
+        }
+
+        return -1;
     });
+
+    // TODO: Maybe we can measure the score between them and drop ones that are too far out, as not to have always 5?
 
     return itemArray;
 }

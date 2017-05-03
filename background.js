@@ -55,7 +55,6 @@ function initiateDatabase() {
 
 }
 
-// TODO temporary fix, because it removes the initiated db somehow?
 if (dictionary.tableCount() == 0) {
     initiateDatabase();
 }
@@ -64,7 +63,6 @@ function handleMessage (request, sender, sendResponse) {
 
     var searchWords = searchWordOptimization(request);
 
-    // TODO improve the search function a bit
     var result = dictionary.queryAll("items", {
         query: function (row) {
             for (var i = 0; i < searchWords.length; i++) {
@@ -80,7 +78,7 @@ function handleMessage (request, sender, sendResponse) {
 
     if (result == null) {
 
-        return; // TODO or sendResponse with the original word (request) back?
+        return;
     }
 
     sendResponse(wordSortation(dictionary, result, searchWords));

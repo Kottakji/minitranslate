@@ -22,7 +22,7 @@ chrome.storage.sync.get("active", function (result) {
                         }
                         // First match = all
                         for (var j = 1; j < matches.length; j++) {
-                            customReplace(matches[j], p[j-1]);
+                            customReplace(matches[j], p[i]);
 
                             if (j > (amount -1)) {
                                 break first_loop;
