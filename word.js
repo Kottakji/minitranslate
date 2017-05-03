@@ -24,7 +24,7 @@ function pinyinToUnicodePinyin (pinyin) {
     // Pinyin looks like [pin1 pin1]
     pinyin = pinyin.slice(1, -1);
 
-    var result = pinyin.replace(/(\w+?)([aieuo])(.+?)?(\d)/gi, function (match, $1, $2, $3, $4) {
+    var result = pinyin.replace(/(\w+?)([aieuo])(\w{0,3})(\d)/gi, function (match, $1, $2, $3, $4) {
 
         // Source from http://pinyin.info/unicode/unicode_test.html
         var character = $2;
