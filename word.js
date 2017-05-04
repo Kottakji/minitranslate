@@ -21,9 +21,9 @@ var word = {
 // In the English text, sometimes they add the measure word (CL)
 function measureWordToPinyin (english) {
 
-    var result = english.replace(/(\/CL:.+?)(\[.+?\])/gi, function(match, $1, $2) {
+    var result = english.replace(/(\[.+?\])/gi, function(match, $1) {
 
-        return $1 + "[" + pinyinToUnicodePinyin($2) + "]";
+        return "[" + pinyinToUnicodePinyin($1) + "]";
     });
 
     return result;
