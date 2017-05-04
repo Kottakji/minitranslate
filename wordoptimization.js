@@ -1,8 +1,8 @@
+var containsVerb = false;
+
 function searchWordOptimization (word) {
 
-
-    // TODO this is for adjectives, now add verb support? Or make a better regex to remove working etc as verbs
-    // TODO change started -> start etc
+    containsVerb = false;
 
     // If we want to support more languages, change it here
 
@@ -68,6 +68,19 @@ function searchWordOptimization (word) {
     // -ly
     result.push(word.replace(/(\w+?)ly/, "$1"));
 
+    // In case we get some conjugated verbs in there
+    // Note, this doesn't prevent us from irregular verbs to get mixed in there, but most shouldn't come here
+    // We should remember that there is a verb, because we want to change our search later on, forcing to look for "to verb"
+    if (word.match(/(\w+?)ing/)) {
+        containsVerb = true;
+        result.push(word.replace(/(\w+?)ing/, "$1"));
+    }
+
+    if (word.match(/(\w+?)ed/)) {
+        containsVerb = true;
+        result.push(word.replace(/(\w+?)ed/, "$1"));
+    }
+
     // Remove all duplicates
     return result.filter(function (item, pos) {return result.indexOf(item) == pos});
 }
@@ -89,9 +102,9 @@ function wordSortation (dictionary, itemArray, searchWords) {
                 count += 0;
                 break;
             case 1:
-                // If it's an adjective, it should most likely be a 1 length character
-                // Adjectives are most likely the chanced words from above in the searchWordOptimization function
-                // Therefore we can easily check the searchWords count to see, with reasonable accuracy, if it's an adjective
+                // If it's an adjective or a verb, it should most likely be a 1 length Chinese character
+                // Adjectives/verbs are most likely the chanced words from above in the searchWordOptimization function
+                // Therefore we can easily check the searchWords count to see, with reasonable accuracy, if it really is
                 if (searchWords.length > 1) {
                     count += 15;
                 } else {
@@ -218,6 +231,15 @@ function wordSortation (dictionary, itemArray, searchWords) {
             }
         }
 
+        // Additional for verbs
+        // If the entry doesn't have "to" in front of the verb, it's a bad match
+        if (containsVerb) {
+
+            var r8 = new RegExp("to " +searchWords[i] + ".?\\b");
+            if (!(r8.test(entry["english"]))) {
+                count += 25;
+            }
+        }
         entry["count"] = count;
 
         return count;
