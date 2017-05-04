@@ -66,20 +66,18 @@ function handleMessage (request, sender, sendResponse) {
     var result = dictionary.queryAll("items", {
         query: function (row) {
             for (var i = 0; i < searchWords.length; i++) {
-                if (row.english.indexOf(searchWords[i]) !== -1) {
+                // Search with \b beginning, because we don't want under to match thunder etc
+                // Remember, js requires an extra backslash for \b...
+                var pattern = new RegExp("\\b" + searchWords[i]);
+                if (pattern.test(row.english)) {
 
-                    return true
+                    return true;
                 }
             }
 
             return false;
         }
     });
-
-    if (result == null) {
-
-        return;
-    }
 
     sendResponse(wordSortation(dictionary, result, searchWords));
 

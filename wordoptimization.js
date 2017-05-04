@@ -85,7 +85,14 @@ function wordSortation (dictionary, itemArray, searchWords) {
                 count += 0;
                 break;
             case 1:
-                count += 15;
+                // If it's an adjective, it should most likely be a 1 length character
+                // Adjectives are most likely the chanced words from above in the searchWordOptimization function
+                // Therefore we can easily check the searchWords count to see, with reasonable accuracy, if it's an adjective
+                if (searchWords.length > 1) {
+                    count += 15;
+                } else {
+                    count += 36;
+                }
                 break;
             case 2:
                 count += 36;
@@ -128,6 +135,7 @@ function wordSortation (dictionary, itemArray, searchWords) {
             /**
              *  The order is based on this scheme
              *  popular
+             *  popular/CL:
                 popular/something
                 something/popular/something
                 something/something/popular
@@ -139,55 +147,66 @@ function wordSortation (dictionary, itemArray, searchWords) {
                 popularly
              */
 
-            if (entry["english"] === searchWords[i]) {
+            if (entry["english"] == searchWords[i]) {
 
                 count = 0;
                 continue;
             }
 
-            var r1 = new RegExp("[^\/]\b"+ searchWords[i] +"\/");
+            // Sometimes there are some additional options added in the english entry,
+            // For example in : 政府 [zheng4 fu3] /government/CL:個|个[ge4]/
+            // So, if we remove the CL:... we can also get a perfect match
+            var r0 = new RegExp("^"+ searchWords[i] +"\\/CL");
+            if (r0.test(entry["english"])) {
+
+                count = 0;
+                continue;
+            }
+
+            // Remember, to escape a /, normally requires \/, but js requires \\/....
+            var r1 = new RegExp("^"+ searchWords[i] +"\\/");
             if (r1.test(entry["english"])) {
 
-                count -= 15;
+                count -= 25;
                 break;
             }
 
-            var r2 = new RegExp("\/" + searchWords[i] + "\/");
+            var r2 = new RegExp("\\/" + searchWords[i] + "\\/");
             if (r2.test(entry["english"])) {
 
-                count -= 13;
+                count -= 23;
                 break;
             }
 
-            var r3 = new RegExp("\/" + searchWords[i] + "\b[^ \w]");
+            var r3 = new RegExp("\\/" + searchWords[i] + "\\b[^ \\w]");
             if (r3.test(entry["english"])) {
 
-                count -= 11;
+                count -= 22;
                 break;
             }
 
-            var r4 = new RegExp("[^\/]\b" + searchWords[i] + "\b ");
+            var r4 = new RegExp("^" + searchWords[i] + "\\b ");
             if (r4.test(entry["english"])) {
 
                 count -= 9;
                 break;
             }
 
-            var r5 = new RegExp("\/\b" + searchWords[i] + "\b .+?(?=\/)");
+            var r5 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?(?=\\/)");
             if (r5.test(entry["english"])) {
 
                 count -= 7;
                 break;
             }
 
-            var r6 = new RegExp("\/\b" + searchWords[i] + "\b .+?");
+            var r6 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?");
             if (r6.test(entry["english"])) {
 
                 count -= 5;
                 break;
             }
 
-            var r7 = new RegExp("\b" + searchWords[i] + "\b");
+            var r7 = new RegExp("\\b" + searchWords[i] + "\\b");
             if (r7.test(entry["english"])) {
 
                 count -= 3;
@@ -212,7 +231,7 @@ function wordSortation (dictionary, itemArray, searchWords) {
         return -1;
     });
     
-    return searchWordRelevancy(dictionary, itemArray.slice(0,5), searchWords);
+    return searchWordRelevancy(dictionary, itemArray.slice(0,30), searchWords);
 }
 
 // Search each possible word in the database to check for the occurrences and relevancy
@@ -251,18 +270,13 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
         }
     }
 
+    // Remove items with no relevance
+    itemArray = itemArray.filter (function (item) {
+
+        return (item["relevance"] != 0);
+    });
+
     itemArray.sort(function (a, b) {
-        // Need to have at least some relevance before we measure the total score (count and relevance)
-        if (a["relevance"] == 0 && b["relevance"] > 0) {
-
-            return 1;
-        }
-
-        if (a["relevance"] > 0 && b["relevance"] == 0) {
-
-            return -1;
-        }
-
         // High count is bad, high relevance is good. The lowest total is good.
         if (a["count"] - a["relevance"] > b["count"] - b["relevance"]) {
 
@@ -272,7 +286,12 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
         return -1;
     });
 
-    // TODO: Maybe we can measure the score between them and drop ones that are too far out, as not to have always 5?
+    // Filter out the ones with a big count difference, compared with the lowest. It is most likely an irrelevant entry
+    var lowestCount = itemArray[0]["count"];
+    itemArray = itemArray.filter (function (item) {
+
+        return !(item["count"] > lowestCount + 15);
+    });
 
     return itemArray;
 }

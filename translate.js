@@ -36,7 +36,10 @@ chrome.storage.sync.get("active", function (result) {
                     console.log(match);
                     chrome.extension.sendMessage(match.trim(), function (response) {
                         console.log(response);
-                        element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
+                        if (response != null && response.length > 0) {
+                            // TODO bug, sometimes it replaces a different word than the one we found (under, in the help text)
+                            element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
+                        }
                     });
                 }
 
