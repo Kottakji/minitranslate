@@ -8,7 +8,7 @@ var word = {
 
         var tooltipText = "";
         for (var i = 0; i < array.length; i++) {
-            tooltipText += array[i][type] + " " + pinyinToUnicodePinyin(array[i]["pinyin"]) + ": " + array[i]["english"] + "\n";
+            tooltipText += array[i][type] + " " + pinyinToUnicodePinyin(array[i]["pinyin"]) + ": " + measureWordToPinyin(array[i]["english"]) + "\n";
         }
 
         // TODO create a way to report a incorrect word
@@ -18,6 +18,16 @@ var word = {
     }
 };
 
+// In the English text, sometimes they add the measure word (CL)
+function measureWordToPinyin (english) {
+
+    var result = english.replace(/(\/CL:.+?)(\[.+?\])/gi, function(match, $1, $2) {
+
+        return $1 + "[" + pinyinToUnicodePinyin($2) + "]";
+    });
+
+    return result;
+}
 
 // Translates pin1yin1 to Pīnyīn
 function pinyinToUnicodePinyin (pinyin) {
