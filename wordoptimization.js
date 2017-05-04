@@ -1,5 +1,9 @@
 function searchWordOptimization (word) {
 
+
+    // TODO this is for adjectives, now add verb support? Or make a better regex to remove working etc as verbs
+    // TODO change started -> start etc
+
     // If we want to support more languages, change it here
 
     // Remove -ly etc if it contains that etc for each language to get the base of the word
@@ -275,6 +279,13 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
 
         return (item["relevance"] != 0);
     });
+
+    // Could be empty by now
+    if (itemArray.length == 0) {
+
+        return itemArray;
+    }
+
 
     itemArray.sort(function (a, b) {
         // High count is bad, high relevance is good. The lowest total is good.

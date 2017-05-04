@@ -13,31 +13,38 @@ chrome.storage.sync.get("active", function (result) {
                 var pattern = / ([a-z]\w{4,}) /gm;
 
                 var p = document.getElementsByTagName('p');
+                var count = 0
                 first_loop:
                     for (var i = 0; i < p.length; i++) {
 
                         var matches = p[i].innerText.match(pattern);
                         if (matches == null) {
+
                             continue;
                         }
-                        // First match = all
+
                         for (var j = 1; j < matches.length; j++) {
                             customReplace(matches[j], p[i]);
-
-                            if (j > (amount -1)) {
+                            count ++;
+                            
+                            if (count > (amount -1)) {
                                 break first_loop;
+                            }
+
+                            // It would do everything in the first paragraph if we don't skip it here
+                            // Depending on if there are enough paragraphs
+                            if (p.length * j >= 7) {
+
+                                break;
                             }
                         }
                     }
 
                 function customReplace(match, element) {
-                    //TODO somehow it doesn't replace all matches
-                    //TODO (not here) if it's an adjective, 1 character is more important. If it is a noun, 2 chars is more important.
                     console.log(match);
                     chrome.extension.sendMessage(match.trim(), function (response) {
                         console.log(response);
                         if (response != null && response.length > 0) {
-                            // TODO bug, sometimes it replaces a different word than the one we found (under, in the help text)
                             element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
                         }
                     });
