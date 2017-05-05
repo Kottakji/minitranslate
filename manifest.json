@@ -30,6 +30,11 @@
 
   "permissions": [
     "storage"
-  ]
+  ],
+
+  "icons": {
+    "32": "icons/favicon.png",
+    "64": "icons/favicon_big.png"
+  }
 
 }
