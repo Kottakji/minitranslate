@@ -9,7 +9,7 @@
   "background": {
       "scripts": [
         "bower_components/localStorageDB/localstoragedb.js",
-        "wordoptimization.js",
+        "word-optimization.js",
         "background.js"
       ]
   },

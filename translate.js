@@ -13,7 +13,7 @@ chrome.storage.sync.get("active", function (result) {
                 var pattern = / ([a-z]\w{4,}) /gm;
 
                 var p = document.getElementsByTagName('p');
-                var count = 0
+                var count = 0;
                 first_loop:
                     for (var i = 0; i < p.length; i++) {
 

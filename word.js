@@ -6,13 +6,15 @@ var word = {
         var text = array[0][type]; // Simplified or Traditional
         text = " " + text + " "; // Add the two blank lines again b/c our pattern removes the spaces
 
-        var tooltipText = "";
+        var hoverText = "";
         for (var i = 0; i < array.length; i++) {
-            tooltipText += array[i][type] + " " + pinyinToUnicodePinyin(array[i]["pinyin"]) + ": " + measureWordToPinyin(array[i]["english"]) + "\n";
+            hoverText += array[i][type] + " " + pinyinToUnicodePinyin(array[i]["pinyin"]) + ": " + measureWordToPinyin(array[i]["english"]) + "\n";
         }
 
         // TODO create a way to report a incorrect word
-        var element = originalWord + "<span class='character' title='" + tooltipText + "'> (" + text + ") </span>";
+        // var element = originalWord + "<span class='character' title='" + hoverText + "'> (" + text + ") </span>";
+        // TODO linebreaks should be fixed
+        var element = originalWord + "<span class='mt-character' data-tooltip='" + hoverText + "' data-tooltip-position='top'> (" + text + ") </span>";
 
         return element;
     }
