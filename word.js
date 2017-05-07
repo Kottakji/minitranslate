@@ -8,13 +8,19 @@ var word = {
 
         var hoverText = "";
         for (var i = 0; i < array.length; i++) {
-            hoverText += array[i][type] + " " + pinyinToUnicodePinyin(array[i]["pinyin"]) + ": " + measureWordToPinyin(array[i]["english"]) + "\n";
+
+            // Find out the color code
+            // All these spans are for creating neat color coding based on the tone
+            var words = array[i]["pinyin"].split(" ");
+            for (var c = 0; c < array[i][type].length; c++) {
+                hoverText += "<span class='characterColor" + words[c].match(/\d/)[0] + "'>" + array[i][type][c] + "</span>";
+            }
+
+            hoverText += " <span class='pinyin'>" + pinyinToUnicodePinyin(array[i]["pinyin"]) + "</span>: " + measureWordToPinyin(array[i]["english"]) + "\n";
         }
 
         // TODO create a way to report a incorrect word
-        // var element = originalWord + "<span class='character' title='" + hoverText + "'> (" + text + ") </span>";
-        // TODO linebreaks should be fixed
-        var element = originalWord + "<span class='mt-character' data-tooltip='" + hoverText + "' data-tooltip-position='top'> (" + text + ") </span>";
+        var element = originalWord + "<span class='mt-character'>(" + text + ") <span class='hovertext'>" + hoverText + "</span></span> ";
 
         return element;
     }
