@@ -8,9 +8,26 @@ Supports **Simplified** and **Traditional** Chinese characters.
 **Hover** over the translated characters to see an explanation and **pinyin**.
 
 - [x] Traditional support
-- [ ] Styling
+- [x] Color coded tones
 - [ ] Support feedback for individual mismatches
 
 Try it out and let me know if there are any issues. Submit them via Github
 
 https://github.com/JorisKok/minitranslate
+
+
+Mini Translate - Translates a few English nouns on each page to Chinese
+Copyright (C) 2017 Joris Kok
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>
