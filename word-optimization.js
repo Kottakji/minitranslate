@@ -239,7 +239,7 @@ function wordSortation (dictionary, itemArray, searchWords) {
                 }
             }
         }
-        
+
         entry["count"] = count;
 
         return count;
@@ -320,12 +320,11 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
     });
 
     // Filter out the ones with a big count difference, compared with the lowest. It is most likely an irrelevant entry
-    /**
     var lowestCount = itemArray[0]["count"];
     itemArray = itemArray.filter (function (item) {
 
         return !(item["count"] > lowestCount + 15);
     });
-    */
+
     return itemArray;
 }
