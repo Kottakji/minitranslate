@@ -311,7 +311,7 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
 
     itemArray.sort(function (a, b) {
         // High count is bad, high relevance is good. The lowest total is good.
-        if (a["count"] - a["relevance"] > b["count"] - b["relevance"]) {
+        if (a["count"] - (Math.floor(Math.sqrt(a["relevance"]))) > b["count"] - (Math.floor(Math.sqrt(b["relevance"])))) {
 
             return 1;
         }
