@@ -308,10 +308,12 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
         return itemArray;
     }
 
-
     itemArray.sort(function (a, b) {
         // High count is bad, high relevance is good. The lowest total is good.
-        if (a["count"] - (Math.floor(Math.sqrt(a["relevance"]))) > b["count"] - (Math.floor(Math.sqrt(b["relevance"])))) {
+        a["total"] = a["count"] - (Math.floor(Math.sqrt(a["relevance"])));
+        b["total"] = b["count"] - (Math.floor(Math.sqrt(b["relevance"])));
+
+        if (a["total"] > b["total"]) {
 
             return 1;
         }
@@ -320,10 +322,10 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
     });
 
     // Filter out the ones with a big count difference, compared with the lowest. It is most likely an irrelevant entry
-    var lowestCount = itemArray[0]["count"];
+    var lowestCount = itemArray[0]["total"];
     itemArray = itemArray.filter (function (item) {
 
-        return !(item["count"] > lowestCount + 15);
+        return !(item["total"] > lowestCount + 5);
     });
 
     return itemArray;

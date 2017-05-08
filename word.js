@@ -46,7 +46,7 @@ function pinyinToUnicodePinyin (pinyin) {
     // Pinyin looks like [pin1 pin1]
     pinyin = pinyin.slice(1, -1);
 
-    var result = pinyin.replace(/(\w{0,3})([aieuo])(\w{0,3})(\d)/gi, function (match, $1, $2, $3, $4) {
+    var result = pinyin.replace(/(\w{0,3})([aieuo]|u:)(\w{0,3})(\d)/gi, function (match, $1, $2, $3, $4) {
 
         // Source from http://pinyin.info/unicode/unicode_test.html
         var character = $2;
@@ -110,7 +110,7 @@ function pinyinToUnicodePinyin (pinyin) {
                 break;
             case "u": // No tone
                 break;
-            
+
             case "o1":
                 character = "o&#772;";
                 break;
@@ -125,7 +125,22 @@ function pinyinToUnicodePinyin (pinyin) {
                 break;
             case "o": // No tone
                 break;
-            
+
+            case "u:1": // Special u in pinyin
+                character = "ü&#772;";
+                break;
+            case "u:2":
+                character = "ü&#769;";
+                break;
+            case "u:3":
+                character = "ü&#780;";
+                break;
+            case "u:4":
+                character = "ü&#768;";
+                break;
+            case "u:": // No tone
+                break;
+
         }
 
         // For example, pu3 doesn't have capture group 3

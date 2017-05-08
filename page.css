@@ -17,8 +17,8 @@
     padding: 4px 8px;
     font-size: 14px;
     line-height: 1.4;
-    min-width: 100px;
-    max-width: 900px;
+    min-width: 300px;
+    max-width: 600px;
     border-radius: 4px;
 
     position: absolute;
@@ -36,7 +36,7 @@
     margin-left: 0.7em;
 }
 
-.characterColor {
+.characterColor, .characterColor5 {
     color: #CCCCCC;
 }
 
@@ -56,7 +56,7 @@
     color: #CC99CC;
 }
 
-.characterColor, .characterColor1, .characterColor2, .characterColor3, .characterColor4 {
+.characterColor, .characterColor1, .characterColor2, .characterColor3, .characterColor4, .characterColor5 {
     font-size: 18px;
 }
 
