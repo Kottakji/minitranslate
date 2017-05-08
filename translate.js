@@ -17,7 +17,14 @@ chrome.storage.sync.get("active", function (result) {
                 first_loop:
                     for (var i = 0; i < p.length; i++) {
 
-                        var matches = p[i].innerText.match(pattern);
+                        // Remove all the links from the text, as we don't want a character appearing inside a link
+                        var clone = p[i].cloneNode(true);
+                        var links = clone.getElementsByTagName("a");
+                        while (links.length > 0) {
+                            links[0].parentNode.removeChild(links[0]);
+                        }
+
+                        var matches = clone.innerText.match(pattern);
                         if (matches == null) {
 
                             continue;
