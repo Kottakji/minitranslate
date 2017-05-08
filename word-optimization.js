@@ -66,21 +66,21 @@ function searchWordOptimization (word) {
     // End plural
 
     // -ly
-    result.push(word.replace(/(\w+?)ly/, "$1"));
+    result.push(word.replace(/(\w+?)ly\b/, "$1"));
 
     // In case we get some conjugated verbs in there
     // Note, this doesn't prevent us from irregular verbs to get mixed in there, but most shouldn't come here
     // We should remember that there is a verb, because we want to change our search later on, forcing to look for "to verb"
-    if (word.match(/(\w+?)ing/)) {
+    if (word.match(/(\w+?)ing\b/)) {
         containsVerb = true;
-        result.push(word.replace(/(\w+?)ing/, "$1"));
+        result.push(word.replace(/(\w+?)ing\b/, "$1"));
     }
 
     // Word + ed could actually be an adjective as well, but it is ok to treat it as a verb here
     // http://www.englishpage.com/gerunds/adjective_infinitive_list.htm
-    if (word.match(/(\w+?)ed/)) {
+    if (word.match(/(\w+?)ed\b/)) {
         containsVerb = true;
-        result.push(word.replace(/(\w+?)ed/, "$1"));
+        result.push(word.replace(/(\w+?)ed\b/, "$1"));
     }
 
     // Remove all duplicates
@@ -168,7 +168,7 @@ function wordSortation (dictionary, itemArray, searchWords) {
 
             if (entry["english"] == searchWords[i]) {
                 count = 0;
-                continue;
+                break;
             }
 
             // Sometimes there are some additional options added in the english entry,
@@ -177,50 +177,50 @@ function wordSortation (dictionary, itemArray, searchWords) {
             var r0 = new RegExp("^"+ searchWords[i] +"\\/CL");
             if (r0.test(entry["english"])) {
                 count = 0;
-                continue;
+                break;
             }
 
             // Remember, to escape a /, normally requires \/, but js requires \\/....
             var r1 = new RegExp("^"+ searchWords[i] +"\\/");
             if (r1.test(entry["english"])) {
                 count -= 25;
-                break;
+                continue;
             }
 
             var r2 = new RegExp("\\/" + searchWords[i] + "\\/");
             if (r2.test(entry["english"])) {
                 count -= 23;
-                break;
+                continue;
             }
 
             var r3 = new RegExp("\\/" + searchWords[i] + "\\b[^ \\w]");
             if (r3.test(entry["english"])) {
                 count -= 22;
-                break;
+                continue;
             }
 
             var r4 = new RegExp("^" + searchWords[i] + "\\b ");
             if (r4.test(entry["english"])) {
                 count -= 9;
-                break;
+                continue;
             }
 
             var r5 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?(?=\\/)");
             if (r5.test(entry["english"])) {
                 count -= 7;
-                break;
+                continue;
             }
 
             var r6 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?");
             if (r6.test(entry["english"])) {
                 count -= 5;
-                break;
+                continue;
             }
 
             var r7 = new RegExp("\\b" + searchWords[i] + "\\b");
             if (r7.test(entry["english"])) {
                 count -= 3;
-                break;
+                continue;
             }
         }
 
