@@ -13,16 +13,17 @@
     visibility: hidden;
     background-color: black;
     color: #fff;
-    text-align: center;
+    text-align: left;
     padding: 4px 8px;
     font-size: 14px;
     line-height: 1.4;
     min-width: 100px;
+    max-width: 900px;
     border-radius: 4px;
 
     position: absolute;
     z-index: 1;
-    white-space: pre; /* Renders the line breaks */
+    white-space: pre-wrap; /* Renders the line breaks well */
 }
 
 .mt-character:hover .hovertext {
@@ -31,6 +32,8 @@
 
 .pinyin {
     color: #66CCCC;
+    font-size: 16px;
+    margin-left: 0.7em;
 }
 
 .characterColor {
@@ -51,4 +54,12 @@
 
 .characterColor4 {
     color: #CC99CC;
+}
+
+.characterColor, .characterColor1, .characterColor2, .characterColor3, .characterColor4 {
+    font-size: 18px;
+}
+
+.characterAndPinyin {
+    white-space: pre;
 }

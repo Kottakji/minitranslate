@@ -11,12 +11,15 @@ var word = {
 
             // Find out the color code
             // All these spans are for creating neat color coding based on the tone
+            hoverText += "<span class='characterAndPinyin'>"; // This span makes sure that the character + pinyin stay on the same line
             var words = array[i]["pinyin"].split(" ");
             for (var c = 0; c < array[i][type].length; c++) {
                 hoverText += "<span class='characterColor" + words[c].match(/\d/)[0] + "'>" + array[i][type][c] + "</span>";
             }
 
-            hoverText += " <span class='pinyin'>" + pinyinToUnicodePinyin(array[i]["pinyin"]) + "</span>: " + measureWordToPinyin(array[i]["english"]) + "\n";
+            hoverText += " <span class='pinyin'>" + pinyinToUnicodePinyin(array[i]["pinyin"]) + "</span>";
+            hoverText += "</span>";
+            hoverText += "<span class='english'>\n" + measureWordToPinyin(array[i]["english"] + "</span>") + "\n";
         }
 
         // TODO create a way to report a incorrect word
