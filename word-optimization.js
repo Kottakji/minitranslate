@@ -76,6 +76,8 @@ function searchWordOptimization (word) {
         result.push(word.replace(/(\w+?)ing/, "$1"));
     }
 
+    // Word + ed could actually be an adjective as well, but it is ok to treat it as a verb here
+    // http://www.englishpage.com/gerunds/adjective_infinitive_list.htm
     if (word.match(/(\w+?)ed/)) {
         containsVerb = true;
         result.push(word.replace(/(\w+?)ed/, "$1"));
@@ -165,7 +167,6 @@ function wordSortation (dictionary, itemArray, searchWords) {
              */
 
             if (entry["english"] == searchWords[i]) {
-
                 count = 0;
                 continue;
             }
@@ -175,7 +176,6 @@ function wordSortation (dictionary, itemArray, searchWords) {
             // So, if we remove the CL:... we can also get a perfect match
             var r0 = new RegExp("^"+ searchWords[i] +"\\/CL");
             if (r0.test(entry["english"])) {
-
                 count = 0;
                 continue;
             }
@@ -183,49 +183,42 @@ function wordSortation (dictionary, itemArray, searchWords) {
             // Remember, to escape a /, normally requires \/, but js requires \\/....
             var r1 = new RegExp("^"+ searchWords[i] +"\\/");
             if (r1.test(entry["english"])) {
-
                 count -= 25;
                 break;
             }
 
             var r2 = new RegExp("\\/" + searchWords[i] + "\\/");
             if (r2.test(entry["english"])) {
-
                 count -= 23;
                 break;
             }
 
             var r3 = new RegExp("\\/" + searchWords[i] + "\\b[^ \\w]");
             if (r3.test(entry["english"])) {
-
                 count -= 22;
                 break;
             }
 
             var r4 = new RegExp("^" + searchWords[i] + "\\b ");
             if (r4.test(entry["english"])) {
-
                 count -= 9;
                 break;
             }
 
             var r5 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?(?=\\/)");
             if (r5.test(entry["english"])) {
-
                 count -= 7;
                 break;
             }
 
             var r6 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?");
             if (r6.test(entry["english"])) {
-
                 count -= 5;
                 break;
             }
 
             var r7 = new RegExp("\\b" + searchWords[i] + "\\b");
             if (r7.test(entry["english"])) {
-
                 count -= 3;
                 break;
             }
@@ -235,11 +228,18 @@ function wordSortation (dictionary, itemArray, searchWords) {
         // If the entry doesn't have "to" in front of the verb, it's a bad match
         if (containsVerb) {
 
-            var r8 = new RegExp("to " +searchWords[i] + ".?\\b");
-            if (!(r8.test(entry["english"]))) {
-                count += 25;
+            // We give all that don't match +25 (but we first add it, then detract it)
+            count += 25;
+            for (var i = 0; i < searchWords.length; i++) {
+
+                var r8 = new RegExp("to " +searchWords[i] + ".?\\b");
+                if (r8.test(entry["english"])) {
+                    count -= 25;
+                    break;
+                }
             }
         }
+        
         entry["count"] = count;
 
         return count;
@@ -320,11 +320,12 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
     });
 
     // Filter out the ones with a big count difference, compared with the lowest. It is most likely an irrelevant entry
+    /**
     var lowestCount = itemArray[0]["count"];
     itemArray = itemArray.filter (function (item) {
 
         return !(item["count"] > lowestCount + 15);
     });
-
+    */
     return itemArray;
 }
