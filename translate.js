@@ -9,6 +9,24 @@ chrome.storage.sync.get("active", function (result) {
 
                 console.log('loaded');
 
+                var customReplace = (function () {
+                    var searched = [];
+
+                    return function(match, element) {
+                        // Checks for duplicates
+                        if (searched.lastIndexOf(match) == -1) {
+                            searched.push(match);
+                            console.log(match);
+                            chrome.extension.sendMessage(match.trim(), function (response) {
+                                console.log(response);
+                                if (response != null && response.length > 0) {
+                                    element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
+                                }
+                            });
+                        }
+                    }
+                })();
+
                 // Get some nouns from the text and translate a few of them to the selected language
                 var pattern = / ([a-z]\w{4,}) /gm;
 
@@ -46,16 +64,6 @@ chrome.storage.sync.get("active", function (result) {
                             }
                         }
                     }
-
-                function customReplace(match, element) {
-                    console.log(match);
-                    chrome.extension.sendMessage(match.trim(), function (response) {
-                        console.log(response);
-                        if (response != null && response.length > 0) {
-                            element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
-                        }
-                    });
-                }
 
                 console.log('finish');
             });

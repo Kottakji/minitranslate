@@ -74,6 +74,7 @@ function searchWordOptimization (word) {
     if (word.match(/(\w+?)ing\b/)) {
         containsVerb = true;
         result.push(word.replace(/(\w+?)ing\b/, "$1"));
+        result.push(word.replace(/(\w+?)ing\b/, "$1e")); // using -> use, notice -> noticing etc
     }
 
     // Word + ed could actually be an adjective as well, but it is ok to treat it as a verb here
@@ -98,7 +99,7 @@ function wordSortation (dictionary, itemArray, searchWords) {
     var compare = function (entry) {
 
         var count = 0;
-
+        entry["counting"] = []; //TODO remove this when done
         switch (entry["traditional"].length) {
             case 0:
                 count += 0;
@@ -109,24 +110,30 @@ function wordSortation (dictionary, itemArray, searchWords) {
                 // Therefore we can easily check the searchWords count to see, with reasonable accuracy, if it really is
                 if (searchWords.length > 1) {
                     count += 15;
+                    entry["counting"].push("+15");
                 } else {
                     count += 36;
+                    entry["counting"].push("+36");
                 }
                 break;
             case 2:
-                count += 36;
+                count += 28;
+                entry["counting"].push("+28");
                 break;
             case 3:
                 count += 50;
+                entry["counting"].push("+50");
                 break;
             case 4:
                 count += 60;
+                entry["counting"].push("+60");
                 break;
             default:
                 count += 70;
         }
 
-        switch (entry["english"].split("/").length) {
+        var splitted = entry["english"].split("/");
+        switch (splitted.length) {
             case 0:
                 count += 0;
                 break;
@@ -135,21 +142,64 @@ function wordSortation (dictionary, itemArray, searchWords) {
                 break;
             case 2:
                 count += 2;
+                entry["counting"].push("+2");
                 break;
             case 3:
                 count += 4;
+                entry["counting"].push("+4");
                 break;
             case 4:
-                count += 8;
+                count += 6;
+                entry["counting"].push("+6");
                 break;
             case 5:
-                count += 14;
+                count += 7;
+                entry["counting"].push("+7");
                 break;
             default:
-                count += 20;
+                entry["counting"].push("+8");
+                count += 8;
         }
 
+        // Only set the minus points once
+        var minus = (function () {
+            var counter = 0;
+
+            return function (number) {
+
+                if (counter < number) {
+                   counter = number;
+                }
+
+                return counter;
+            }
+        })();
+
+        var add = (function () {
+            var counter = 0;
+
+            return function (number) {
+
+                if (counter < number) {
+                   counter = number;
+                }
+
+                return counter;
+            }
+        })();
+
         for (var i = 0; i < searchWords.length; i++) {
+
+
+            // Count the length of the text in which the string occurred (within /)
+            // Some words are found in long sentences describing many things, but not meaning the actual word
+            var regex = new RegExp("(\\/?(.?(?!\\/))+" + searchWords[i] + "(\\/|.+?\\/|$|.+$))", "igm");
+            var result = regex.exec(entry["cleanEnglish"]);
+            entry["regexformula"] = "(\\/?(.?(?!\\/))+" + searchWords[i] + "(\\/|.+?\\/|$|.+$))";
+            entry["regex"] = result;
+            if (result != null) {
+                add(result[0].length);
+            }
 
             /**
              *  The order is based on this scheme
@@ -167,8 +217,8 @@ function wordSortation (dictionary, itemArray, searchWords) {
              */
 
             if (entry["english"] == searchWords[i]) {
-                count = 0;
-                break;
+                minus(25);
+                continue;
             }
 
             // Sometimes there are some additional options added in the english entry,
@@ -176,53 +226,67 @@ function wordSortation (dictionary, itemArray, searchWords) {
             // So, if we remove the CL:... we can also get a perfect match
             var r0 = new RegExp("^"+ searchWords[i] +"\\/CL");
             if (r0.test(entry["english"])) {
-                count = 0;
-                break;
+                minus(25);
+                continue;
+            }
+
+            // Sometimes there are words with additional information within ()
+            var r1 = new RegExp("^"+ searchWords[i] +" \\(.+?\\)");
+            if (r1.test(entry["english"])) {
+                minus(25);
+                continue;
             }
 
             // Remember, to escape a /, normally requires \/, but js requires \\/....
-            var r1 = new RegExp("^"+ searchWords[i] +"\\/");
-            if (r1.test(entry["english"])) {
-                count -= 25;
-                continue;
-            }
-
-            var r2 = new RegExp("\\/" + searchWords[i] + "\\/");
+            var r2 = new RegExp("^"+ searchWords[i] +"\\/");
             if (r2.test(entry["english"])) {
-                count -= 23;
+                minus(18);
                 continue;
             }
 
-            var r3 = new RegExp("\\/" + searchWords[i] + "\\b[^ \\w]");
+            var r3 = new RegExp("\\/" + searchWords[i] + "\\/");
             if (r3.test(entry["english"])) {
-                count -= 22;
+                minus(16);
                 continue;
             }
 
-            var r4 = new RegExp("^" + searchWords[i] + "\\b ");
+            var r4 = new RegExp("\\/" + searchWords[i] + "\\b[^ \\w]");
             if (r4.test(entry["english"])) {
-                count -= 9;
+                minus(14);
                 continue;
             }
 
-            var r5 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?(?=\\/)");
+            var r5 = new RegExp("^" + searchWords[i] + "\\b ");
             if (r5.test(entry["english"])) {
-                count -= 7;
+                minus(12);
                 continue;
             }
 
-            var r6 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?");
+            var r6 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?(?=\\/)");
             if (r6.test(entry["english"])) {
-                count -= 5;
+                minus(7);
                 continue;
             }
 
-            var r7 = new RegExp("\\b" + searchWords[i] + "\\b");
+            var r7 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?");
             if (r7.test(entry["english"])) {
-                count -= 3;
+                minus(5);
+                continue;
+            }
+
+            var r8 = new RegExp("\\b" + searchWords[i] + "\\b");
+            if (r8.test(entry["english"])) {
+                minus(3);
                 continue;
             }
         }
+
+        entry["counting"].push("-" + minus());
+        count -= minus();
+
+        entry["counting"].push("add+" + add());
+
+        count += add(); // TODO change the ratio?
 
         // Additional for verbs
         // If the entry doesn't have "to" in front of the verb, it's a bad match
@@ -230,14 +294,21 @@ function wordSortation (dictionary, itemArray, searchWords) {
 
             // We give all that don't match +25 (but we first add it, then detract it)
             count += 25;
+            entry["counting"].push("+25");
             for (var i = 0; i < searchWords.length; i++) {
 
                 var r8 = new RegExp("to " +searchWords[i] + ".?\\b");
                 if (r8.test(entry["english"])) {
                     count -= 25;
+                    entry["counting"].push("reset 25");
                     break;
                 }
             }
+        }
+
+        // Just push it up to 0, to make similar ones also appear
+        if (count < 0) {
+            count = 0;
         }
 
         entry["count"] = count;
@@ -245,10 +316,7 @@ function wordSortation (dictionary, itemArray, searchWords) {
         return count;
     };
 
-
     itemArray.sort(function (a, b) {
-        // The English text in the dict is split by /, so match a full string on it
-        // Order: Just the word.
         if (compare(a) > compare(b)) {
 
             return 1;
@@ -285,7 +353,8 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
                     if (result[r]["english"].indexOf(searchWords[s]) !== -1) {
                         if (typeof itemArray[i]["relevance"] !== "undefined") {
 
-                            itemArray[i]["relevance"]++;
+                            // Depending on the length of the characters, add a relevancy point
+                            itemArray[i]["relevance"] += (itemArray[i]["traditional"].length - 1) * 15 + 1;
                         } else {
 
                             itemArray[i]["relevance"] = 0;
@@ -296,37 +365,47 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
         }
     }
 
-    // Remove items with no relevance
-    itemArray = itemArray.filter (function (item) {
-
-        return (item["relevance"] != 0);
-    });
-
-    // Could be empty by now
-    if (itemArray.length == 0) {
-
-        return itemArray;
-    }
-
     itemArray.sort(function (a, b) {
-        // High count is bad, high relevance is good. The lowest total is good.
-        a["total"] = a["count"] - (Math.floor(Math.sqrt(a["relevance"])));
-        b["total"] = b["count"] - (Math.floor(Math.sqrt(b["relevance"])));
+
+        // Items with no relevance should be penalized
+        if (a["relevance"] > 0) {
+            // High count is bad, high relevance is good. The lowest total is good.
+            a["total"] = a["count"] - (Math.floor(Math.sqrt(a["relevance"])));
+        }   else {
+            a["total"] = (a["count"] * 3) + 2;
+        }
+
+        // Items with no relevance should be penalized
+        if (b["relevance"] > 0) {
+            // High count is bad, high relevance is good. The lowest total is good.
+            b["total"] = b["count"] - (Math.floor(Math.sqrt(b["relevance"])));
+        }   else {
+            b["total"] = (b["count"] * 3) + 2;
+        }
 
         if (a["total"] > b["total"]) {
 
             return 1;
         }
 
+        if (a["total"] == b["total"]) {
+            if (a["relevance"] < b["relevance"]) { // Higher relevance is the decisive factor if the totals are equal
+
+                return 1;
+            }
+        }
+
         return -1;
     });
 
     // Filter out the ones with a big count difference, compared with the lowest. It is most likely an irrelevant entry
+    /*
     var lowestCount = itemArray[0]["total"];
     itemArray = itemArray.filter (function (item) {
 
         return !(item["total"] > lowestCount + 5);
     });
+    */
 
     return itemArray;
 }

@@ -1,4 +1,4 @@
-
+// Change to handleMessageTest if you want to test a single word in the tests/
 chrome.runtime.onMessage.addListener(handleMessage);
 
 // Initialize the database via localStorageDB
@@ -22,12 +22,18 @@ chrome.storage.sync.get("amount", function (result) {
     }
 });
 
+chrome.storage.sync.get("type", function (result) {
+    if (typeof result["type"] === "undefined") {
+        chrome.storage.sync.set({"type": "simplified"});
+    }
+});
+
 function initiateDatabase() {
 
     // Required to do it via ajax
     getRequest('db/cedict_1_0_ts_utf-8_mdbg.txt', function (result) {
 
-        dictionary.createTable("items", ["traditional", "simplified", "pinyin", "english"]);
+        dictionary.createTable("items", ["traditional", "simplified", "pinyin", "english", "cleanEnglish"]);
 
         var lines = result.split("\n");
         var pattern = /(.+?) (.+?) (\[.+\]) \/(.+)\//i;
@@ -41,7 +47,8 @@ function initiateDatabase() {
                     traditional: matches[1],
                     simplified: matches[2],
                     pinyin: matches[3],
-                    english: matches[4]
+                    english: matches[4],
+                    cleanEnglish: matches[4].replace(/\(.+?\) ?/g, "").trim() // Used for searching through English words
                 });
             }
         }
@@ -69,7 +76,7 @@ function handleMessage (request, sender, sendResponse) {
                 // Search with \b beginning, because we don't want under to match thunder etc
                 // Remember, js requires an extra backslash for \b...
                 var pattern = new RegExp("\\b" + searchWords[i]);
-                if (pattern.test(row.english)) {
+                if (pattern.test(row.cleanEnglish)) {
 
                     return true;
                 }
@@ -80,6 +87,28 @@ function handleMessage (request, sender, sendResponse) {
     });
 
     sendResponse(wordSortation(dictionary, result, searchWords));
+
+}
+
+// Used for testing purposes in the tests folder
+// If you want to use it, change the handleMessage listener to this function
+function handleMessageTest (searchWord, sender, sendResponse) {
+
+    var result = dictionary.queryAll("items", {
+        query: function (row) {
+
+            var pattern = new RegExp("\\b" + searchWord);
+            if (pattern.test(row.cleanEnglish)) {
+
+                return true;
+            }
+
+
+            return false;
+        }
+    });
+
+    sendResponse(result);
 
 }
 

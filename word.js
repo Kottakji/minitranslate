@@ -22,7 +22,6 @@ var word = {
             hoverText += "<span class='english'>\n" + measureWordToPinyin(array[i]["english"] + "</span>") + "\n";
         }
 
-        // TODO create a way to report a incorrect word
         var element = originalWord + "<span class='mt-character'>(" + text + ") <span class='hovertext'>" + hoverText + "</span></span> ";
 
         return element;
@@ -46,7 +45,7 @@ function pinyinToUnicodePinyin (pinyin) {
     // Pinyin looks like [pin1 pin1]
     pinyin = pinyin.slice(1, -1);
 
-    var result = pinyin.replace(/(\w{0,3})([aieuo]|u:)(\w{0,3})(\d)/gi, function (match, $1, $2, $3, $4) {
+    var result = pinyin.replace(/(\w{0,3})([aieuo]|u:|r)(\w{0,3})(\d)/gi, function (match, $1, $2, $3, $4) {
 
         // Source from http://pinyin.info/unicode/unicode_test.html
         var character = $2;
@@ -139,6 +138,10 @@ function pinyinToUnicodePinyin (pinyin) {
                 character = "ü&#768;";
                 break;
             case "u:": // No tone
+                break;
+
+            case "r5":
+                character = "r"; // a no tone r
                 break;
 
         }

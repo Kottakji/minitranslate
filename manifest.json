@@ -23,7 +23,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["translate.js", "word.js"],
+      "js": ["translate.js", "word.js", "tests/samples.js"], // TODO remove tests
       "css": ["page.css"]
     }
   ],
