@@ -69,7 +69,6 @@ if (dictionary.tableCount() == 0) {
 function handleMessage (request, sender, sendResponse) {
 
     var searchWords = searchWordOptimization(request);
-    console.log(searchWords);
 
     var result = dictionary.queryAll("items", {
         query: function (row) {

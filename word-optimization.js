@@ -612,6 +612,8 @@ function wordSortation (dictionary, itemArray, searchWords) {
             count = 0;
         }
 
+        entry["count"] = count;
+
         return count;
     };
 
