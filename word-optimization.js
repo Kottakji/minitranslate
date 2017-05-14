@@ -411,7 +411,6 @@ function wordSortation (dictionary, itemArray, searchWords) {
     var compare = function (entry) {
 
         var count = 0;
-        entry["counting"] = []; //TODO remove this when done
         switch (entry["traditional"].length) {
             case 0:
                 count += 0;
@@ -422,23 +421,18 @@ function wordSortation (dictionary, itemArray, searchWords) {
                 // Therefore we can easily check the searchWords count to see, with reasonable accuracy, if it really is
                 if (searchWords.length > 1) {
                     count += 15;
-                    entry["counting"].push("+15");
                 } else {
                     count += 36;
-                    entry["counting"].push("+36");
                 }
                 break;
             case 2:
                 count += 28;
-                entry["counting"].push("+28");
                 break;
             case 3:
                 count += 38;
-                entry["counting"].push("+50");
                 break;
             case 4:
                 count += 48;
-                entry["counting"].push("+60");
                 break;
             default:
                 count += 58;
@@ -454,29 +448,23 @@ function wordSortation (dictionary, itemArray, searchWords) {
                 break;
             case 2:
                 count += 2;
-                entry["counting"].push("+2");
                 break;
             case 3:
                 count += 4;
-                entry["counting"].push("+4");
                 break;
             case 4:
                 count += 6;
-                entry["counting"].push("+6");
                 break;
             case 5:
                 count += 7;
-                entry["counting"].push("+7");
                 break;
             default:
-                entry["counting"].push("+8");
                 count += 8;
         }
 
         // If the word occurs within all splitted words, then it must be quite accurate
         for (var i = 0; i < splitted.length; i++) {
             if (splitted[i].indexOf(searchWords[0]) != -1) {
-                entry["counting"].push("-1 (splitted occurrence)");
                 count -= 2;
             }
         }
@@ -508,8 +496,6 @@ function wordSortation (dictionary, itemArray, searchWords) {
             }
         })();
 
-        entry["searchWords"] = searchWords;
-
         for (var i = 0; i < searchWords.length; i++) {
 
 
@@ -517,8 +503,6 @@ function wordSortation (dictionary, itemArray, searchWords) {
             // Some words are found in long sentences describing many things, but not meaning the actual word
             var regex = new RegExp("(\\/?(.?(?!\\/))+" + searchWords[i] + "(\\/|.+?\\/|$|.+$))", "igm");
             var result = regex.exec(entry["cleanEnglish"]);
-            entry["regexformula"] = "(\\/?(.?(?!\\/))+" + searchWords[i] + "(\\/|.+?\\/|$|.+$))";
-            entry["regex"] = result;
             if (result != null) {
                 add(result[0].length - searchWords[i].length);
             }
@@ -604,12 +588,8 @@ function wordSortation (dictionary, itemArray, searchWords) {
 
         entry["minus"] = minus(); // We use this in the searchWordRelevancy function
 
-        entry["counting"].push("-" + minus());
         count -= minus();
-
-        entry["counting"].push("add+" + add());
-
-        count += add(); // TODO change the ratio?
+        count += add();
 
         // Additional for verbs
         // If the entry doesn't have "to" in front of the verb, it's a bad match
@@ -617,13 +597,11 @@ function wordSortation (dictionary, itemArray, searchWords) {
 
             // We give all that don't match +25 (but we first add it, then detract it)
             count += 25;
-            entry["counting"].push("+25");
             for (var i = 0; i < searchWords.length; i++) {
 
                 var r8 = new RegExp("to " +searchWords[i] + ".?\\b");
                 if (r8.test(entry["english"])) {
                     count -= 25;
-                    entry["counting"].push("reset 25");
                     break;
                 }
             }
@@ -633,8 +611,6 @@ function wordSortation (dictionary, itemArray, searchWords) {
         if (count < 0) {
             count = 0;
         }
-
-        entry["count"] = count;
 
         return count;
     };
@@ -731,11 +707,13 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
     });
 
     // Filter out the ones with a big count difference, compared with the lowest. It is most likely an irrelevant entry
-    /*var lowestCount = itemArray[0]["total"];
-    itemArray = itemArray.filter (function (item) {
+    if (itemArray.length > 0) {
+        var lowestCount = itemArray[0]["total"];
+        itemArray = itemArray.filter (function (item) {
 
-        return !(item["total"] > lowestCount + 5);
-    });*/
+            return !(item["total"] > lowestCount + 5);
+        });
+    }
 
     return itemArray;
 }

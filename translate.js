@@ -7,8 +7,6 @@ chrome.storage.sync.get("active", function (result) {
             chrome.storage.sync.get("type", function (result) {
                 var type = result["type"]; // Traditional or Simplified
 
-                console.log('loaded');
-
                 var customReplace = (function () {
                     var searched = [];
 
@@ -16,9 +14,8 @@ chrome.storage.sync.get("active", function (result) {
                         // Checks for duplicates
                         if (searched.lastIndexOf(match) == -1) {
                             searched.push(match);
-                            console.log(match);
+
                             chrome.extension.sendMessage(match.trim(), function (response) {
-                                console.log(response);
                                 if (response != null && response.length > 0) {
                                     element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
                                 }
@@ -64,8 +61,6 @@ chrome.storage.sync.get("active", function (result) {
                             }
                         }
                     }
-
-                console.log('finish');
             });
         });
     }

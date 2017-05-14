@@ -1,4 +1,5 @@
 // Include in manifest.json, content_scripts to run
+// For testing purposes only, useful for testing if the matches still work after changing some values
 console.log("Starting Tests");
 
 var items = [];
@@ -18,12 +19,8 @@ items.push(["largest", 25413]);
 items.push(["album", 31316]); // TODO these two
 
 for (var i = 0; i < items.length; i++) {
-    // performLookup(items[i]);
+    performLookup(items[i]);
 }
-
-// TODO only EN, ORG
-// TODO block on this site
-
 
 // When using search, comment out performLookup
 // search("to use");
