@@ -9,7 +9,7 @@ Supports **Simplified** and **Traditional** Chinese characters.
 
 - [x] Traditional support
 - [x] Color coded tones
-- [ ] Support feedback for individual mismatches
+- [x] Alternative matches on hover
 
 Try it out and let me know if there are any issues. Submit them via Github
 
