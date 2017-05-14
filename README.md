@@ -15,6 +15,9 @@ Try it out and let me know if there are any issues. Submit them via Github
 
 https://github.com/JorisKok/minitranslate
 
+Please note that I cannot translate every word with 100% accuracy,
+as I would need to analyze the whole text for that.
+Therefore, hovering over a word gives you the ability to see the most likely matches.
 
 Mini Translate - Translates a few English nouns on each page to Chinese
 Copyright (C) 2017 Joris Kok
