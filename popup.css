@@ -1,5 +1,6 @@
 * {
-    font-family: "Open Sans", sans-serif;
+    font-family: Ubuntu, Arial, sans-serif;
+    font-size: 13px;
 }
 
 html {
@@ -8,6 +9,7 @@ html {
 
 body {
     height: 100%;
+    max-width: 186px;
 }
 
 .button-fill {
