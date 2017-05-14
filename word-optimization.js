@@ -1,8 +1,299 @@
 var containsVerb = false;
 
+// <editor-fold desc="An array of irregular English verbs">
+var irregular = [];
+irregular["arose"] = ["arise"];
+irregular["arisen"] = ["arise"];
+irregular["awoke"] = ["awake"];
+irregular["awoken"] = ["awake"];
+irregular["bore"] = ["bear"];
+irregular["borne"] = ["bear"];
+irregular["beat"] = ["beat"];
+irregular["beaten"] = ["beat"];
+irregular["became"] = ["become"];
+irregular["become"] = ["become"];
+irregular["began"] = ["begin"];
+irregular["begun"] = ["begin"];
+irregular["bent"] = ["bend"];
+irregular["beset"] = ["beset"];
+irregular["bet"] = ["bet"];
+irregular["betted"] = ["bet"];
+irregular["bid"] = ["bid"];
+irregular["bound"] = ["bind"];
+irregular["bit"] = ["bite"];
+irregular["bitten"] = ["bite"];
+irregular["bled"] = ["bleed"];
+irregular["blew"] = ["blow"];
+irregular["blown"] = ["blow"];
+irregular["broke"] = ["break"];
+irregular["broken"] = ["break"];
+irregular["bred"] = ["breed"];
+irregular["brought"] = ["bring"];
+irregular["built"] = ["build"];
+irregular["burnt"] = ["burn"];
+irregular["burned"] = ["burn"];
+irregular["burst"] = ["burst"];
+irregular["bought"] = ["buy"];
+irregular["cast"] = ["cast"];
+irregular["caught"] = ["catch"];
+irregular["chose"] = ["choose"];
+irregular["chosen"] = ["choose"];
+irregular["clung"] = ["cling"];
+irregular["came"] = ["come"];
+irregular["crept"] = ["creep"];
+irregular["dealt"] = ["deal"];
+irregular["dug"] = ["dig"];
+irregular["dived"] = ["dive"];
+irregular["dove"] = ["dive"];
+irregular["did"] = ["do"];
+irregular["done"] = ["do"];
+irregular["drew"] = ["draw"];
+irregular["drawn"] = ["draw"];
+irregular["dreamt"] = ["dream"];
+irregular["dreamed"] = ["dream"];
+irregular["drank"] = ["drink"];
+irregular["drunk"] = ["drink"];
+irregular["drove"] = ["drive"];
+irregular["driven"] = ["drive"];
+irregular["ate"] = ["eat"];
+irregular["eaten"] = ["eat"];
+irregular["fell"] = ["fall"];
+irregular["fallen"] = ["fall"];
+irregular["fed"] = ["feed"];
+irregular["felt"] = ["feel"];
+irregular["fought"] = ["fight"];
+irregular["found"] = ["find"];
+irregular["fled"] = ["flee"];
+irregular["flung"] = ["fling"];
+irregular["flew"] = ["fly"];
+irregular["flown"] = ["fly"];
+irregular["forbade"] = ["forbid"];
+irregular["forbidden"] = ["forbid"];
+irregular["forgot"] = ["forget"];
+irregular["forgotten"] = ["forget"];
+irregular["forgo"] = ["forego"];
+irregular["forewent"] = ["forego"];
+irregular["foregone"] = ["forego"];
+irregular["forgave"] = ["forgive"];
+irregular["forgiven"] = ["forgive"];
+irregular["forsook"] = ["forsake"];
+irregular["forsaken"] = ["forsake"];
+irregular["foretold"] = ["foretell"];
+irregular["froze"] = ["freeze"];
+irregular["frozen"] = ["freeze"];
+irregular["got"] = ["get"];
+irregular["gotten"] = ["get"];
+irregular["gave"] = ["give"];
+irregular["given"] = ["give"];
+irregular["went"] = ["go"];
+irregular["gone"] = ["go"];
+irregular["ground"] = ["grind"];
+irregular["grew"] = ["grow"];
+irregular["grown"] = ["grow"];
+irregular["hung"] = ["hang"];
+irregular["hanged"] = ["hang"];
+irregular["had"] = ["have"];
+irregular["heard"] = ["hear"];
+irregular["hid"] = ["hide"];
+irregular["hidden"] = ["hide"];
+irregular["hit"] = ["hit"];
+irregular["held"] = ["hold"];
+irregular["hurt"] = ["hurt"];
+irregular["kept"] = ["keep"];
+irregular["knelt"] = ["kneel"];
+irregular["knew"] = ["know"];
+irregular["known"] = ["know"];
+irregular["laid"] = ["lay"];
+irregular["led"] = ["lead"];
+irregular["leant"] = ["lean"];
+irregular["leaned"] = ["lean"];
+irregular["leapt"] = ["leap"];
+irregular["leaped"] = ["leap"];
+irregular["learnt"] = ["learn"];
+irregular["learned"] = ["learn"];
+irregular["left"] = ["leave"];
+irregular["lent"] = ["lend"];
+irregular["lay"] = ["lie"];
+irregular["lain"] = ["lie"];
+irregular["lit"] = ["light"];
+irregular["lighted"] = ["light"];
+irregular["lost"] = ["lose"];
+irregular["made"] = ["make"];
+irregular["meant"] = ["mean"];
+irregular["met"] = ["meet"];
+irregular["misspelt"] = ["misspell"];
+irregular["misspelled"] = ["misspell"];
+irregular["mistook"] = ["mistake"];
+irregular["mistaken"] = ["mistake"];
+irregular["mowed"] = ["mow"];
+irregular["mown"] = ["mow"];
+irregular["overcame"] = ["overcome"];
+irregular["overdid"] = ["overdo"];
+irregular["overdone"] = ["overdo"];
+irregular["overtook"] = ["overtake"];
+irregular["overtaken"] = ["overtake"];
+irregular["overthrew"] = ["overthrow"];
+irregular["overthrown"] = ["overthrow"];
+irregular["paid"] = ["pay"];
+irregular["pleaded"] = ["plead"];
+irregular["proved"] = ["prove"];
+irregular["proven"] = ["prove"];
+irregular["rode"] = ["ride"];
+irregular["ridden"] = ["ride"];
+irregular["rang"] = ["ring"];
+irregular["rung"] = ["ring"];
+irregular["rose"] = ["rise"];
+irregular["risen"] = ["rise"];
+irregular["ran"] = ["run"];
+irregular["sawed"] = ["saw"];
+irregular["sawn"] = ["saw"];
+irregular["said"] = ["say"];
+irregular["saw"] = ["see"];
+irregular["seen"] = ["see"];
+irregular["sought"] = ["seek"];
+irregular["sold"] = ["sell"];
+irregular["sent"] = ["send"];
+irregular["sewed"] = ["sew"];
+irregular["sewn"] = ["sew"];
+irregular["shook"] = ["shake"];
+irregular["shaken"] = ["shake"];
+irregular["sheared"] = ["shear"];
+irregular["shorn"] = ["shear"];
+irregular["shone"] = ["shine"];
+irregular["shot"] = ["shoot"];
+irregular["showed"] = ["show"];
+irregular["shown"] = ["show"];
+irregular["shrank"] = ["shrink"];
+irregular["shrunk"] = ["shrink"];
+irregular["shut"] = ["shut"];
+irregular["sang"] = ["sing"];
+irregular["sung"] = ["sing"];
+irregular["sank"] = ["sink"];
+irregular["sunk"] = ["sink"];
+irregular["sat"] = ["sit"];
+irregular["slept"] = ["sleep"];
+irregular["slew"] = ["slay"];
+irregular["slayed"] = ["slay"];
+irregular["slain"] = ["slay"];
+irregular["slid"] = ["slide"];
+irregular["slung"] = ["sling"];
+irregular["smelt"] = ["smell"];
+irregular["smelled"] = ["smell"];
+irregular["smote"] = ["smite"];
+irregular["smitten"] = ["smite"];
+irregular["sowed"] = ["sow"];
+irregular["sown"] = ["sow"];
+irregular["spoke"] = ["speak"];
+irregular["spoken"] = ["speak"];
+irregular["sped"] = ["speed"];
+irregular["speeded"] = ["speed"];
+irregular["spelt"] = ["spell"];
+irregular["spelled"] = ["spell"];
+irregular["spent"] = ["spend"];
+irregular["spilt"] = ["spill"];
+irregular["spilled"] = ["spill"];
+irregular["spun"] = ["spin"];
+irregular["spat"] = ["spit"];
+irregular["spoilt"] = ["spoil"];
+irregular["spoiled"] = ["spoil"];
+irregular["sprang"] = ["spring"];
+irregular["sprung"] = ["spring"];
+irregular["stood"] = ["stand"];
+irregular["stole"] = ["steal"];
+irregular["stolen"] = ["steal"];
+irregular["stuck"] = ["stick"];
+irregular["stung"] = ["sting"];
+irregular["stank"] = ["stink"];
+irregular["stunk"] = ["stink"];
+irregular["strode"] = ["stride"];
+irregular["stridden"] = ["stride"];
+irregular["struck"] = ["strike"];
+irregular["strove"] = ["strive"];
+irregular["striven"] = ["strive"];
+irregular["swore"] = ["swear"];
+irregular["sworn"] = ["swear"];
+irregular["swept"] = ["sweep"];
+irregular["swelled"] = ["swell"];
+irregular["swollen"] = ["swell"];
+irregular["swam"] = ["swim"];
+irregular["swum"] = ["swim"];
+irregular["swung"] = ["swing"];
+irregular["took"] = ["take"];
+irregular["taken"] = ["take"];
+irregular["taught"] = ["teach"];
+irregular["tore"] = ["tear"];
+irregular["torn"] = ["tear"];
+irregular["told"] = ["tell"];
+irregular["thought"] = ["think"];
+irregular["throve"] = ["thrive"];
+irregular["thrived"] = ["thrive"];
+irregular["threw"] = ["throw"];
+irregular["thrown"] = ["throw"];
+irregular["thrust"] = ["thrust"];
+irregular["trod"] = ["tread"];
+irregular["trodden"] = ["tread"];
+irregular["understood"] = ["understand"];
+irregular["upheld"] = ["uphold"];
+irregular["woke"] = ["wake"];
+irregular["waked"] = ["wake"];
+irregular["wore"] = ["wear"];
+irregular["worn"] = ["wear"];
+irregular["wove"] = ["weave"];
+irregular["weaved"] = ["weave"];
+irregular["wedded"] = ["wed"];
+irregular["wed"] = ["wed"];
+irregular["wept"] = ["weep"];
+irregular["won"] = ["win"];
+irregular["wound"] = ["wind"];
+irregular["withdrew"] = ["withdraw"];
+irregular["withdrawn"] = ["withdraw"];
+irregular["withheld"] = ["withhold"];
+irregular["withstood"] = ["withstand"];
+irregular["wrung"] = ["wring"];
+irregular["wrote"] = ["write"];
+irregular["written"] = ["write"];
+// </editor-fold>
+
+// <editor-fold desc="An array of irregular English superlatives">
+var superlatives = [];
+superlatives["good"] = "better";
+superlatives["good"] = "best";
+superlatives["bad"] = "worse";
+superlatives["bad"] = "worst";
+superlatives["far"] = "farther";
+superlatives["far"] = "further";
+superlatives["far"] = "farthest";
+superlatives["far"] = "furthest";
+superlatives["well"] = "better";
+superlatives["well"] = "best";
+superlatives["little"] = "less";
+superlatives["little"] = "least";
+// </editor-fold>
+
 function searchWordOptimization (word) {
 
+    var result = [];
     containsVerb = false;
+
+    // First check if it is an irregular verb and change it back to it's base form
+    for (var item in irregular) {
+        if (item == word) {
+            result.push(irregular[item]);
+            result.push("to " + irregular[item]); // Specifically for verbs
+            containsVerb = true;
+
+            return result;
+        }
+    }
+
+    // Check the superlative exceptions
+    for (var item in superlatives) {
+        if (item == word) {
+            result.push(superlatives[item]);
+
+            return result;
+        }
+    }
 
     // If we want to support more languages, change it here
 
@@ -13,7 +304,6 @@ function searchWordOptimization (word) {
     // English Plural
     // Source: http://users.monash.edu/~damian/papers/HTML/Plurals.html
 
-    var result = [];
     result.push(word); // Always added!
 
     result.push(word.replace(/(\w+?)(as|ae|ata)\b/, "$2a"));
@@ -62,8 +352,25 @@ function searchWordOptimization (word) {
     result.push(word.replace(/(\w+?)(s|im)\b/, "$1")); // Is this one necessary?
 
     result.push(word.replace(/(\w+?)ee(\w+)/, "$1oo$2")); // foot -> feet, tooth, teeth
-
     // End plural
+
+    // Superlatives - large, larger, largest
+    // 1 syllable = +er or +est and sometimes the final consonant should be doubled
+    result.push(word.replace(/(\w+?)er/, "$1")); // higher -> high
+    result.push(word.replace(/(\w+?)er/, "$1e")); // larger -> large
+    result.push(word.replace(/(\w+?)est/, "$1")); // highest -> high
+    result.push(word.replace(/(\w+?)est/, "$1e")); // largest -> large
+
+    result.push(word.replace(/([a-z])(\1)er/, "$1")); // bigger -> big
+    result.push(word.replace(/([a-z])(\1)er/, "$1$2")); // taller -> tall
+    result.push(word.replace(/([a-z])(\1)est/, "$1")); // tallest -> tall
+    result.push(word.replace(/([a-z])(\1)est/, "$1$2")); // biggest -> tall
+
+    // Two syllables
+    result.push(word.replace(/(\w+?)ier/, "$1y")); // busier -> busy
+    result.push(word.replace(/(\w+?)iest/, "$1y")); // busiest -> busy
+    result.push(word.replace(/(\w+?)er/, "$1e")); // simpler -> simple
+    result.push(word.replace(/(\w+?)ier/, "$1y")); // simpler -> simple
 
     // -ly
     result.push(word.replace(/(\w+?)ly\b/, "$1"));
@@ -75,6 +382,8 @@ function searchWordOptimization (word) {
         containsVerb = true;
         result.push(word.replace(/(\w+?)ing\b/, "$1"));
         result.push(word.replace(/(\w+?)ing\b/, "$1e")); // using -> use, notice -> noticing etc
+        result.push("to " + word.replace(/(\w+?)ing\b/, "$1")); // Specifically for verbs
+        result.push("to " + word.replace(/(\w+?)ing\b/, "$1e")); // Specifically for verbs
     }
 
     // Word + ed could actually be an adjective as well, but it is ok to treat it as a verb here
@@ -82,6 +391,9 @@ function searchWordOptimization (word) {
     if (word.match(/(\w+?)ed\b/)) {
         containsVerb = true;
         result.push(word.replace(/(\w+?)ed\b/, "$1"));
+        result.push(word.replace(/(\w+?)ed\b/, "$1e")); // Released -> release
+        result.push("to " + word.replace(/(\w+?)ed\b/, "$1")); // Specifically for verbs
+        result.push("to " + word.replace(/(\w+?)ed\b/, "$1e")); // Released -> to release
     }
 
     // Remove all duplicates
@@ -121,15 +433,15 @@ function wordSortation (dictionary, itemArray, searchWords) {
                 entry["counting"].push("+28");
                 break;
             case 3:
-                count += 50;
+                count += 38;
                 entry["counting"].push("+50");
                 break;
             case 4:
-                count += 60;
+                count += 48;
                 entry["counting"].push("+60");
                 break;
             default:
-                count += 70;
+                count += 58;
         }
 
         var splitted = entry["english"].split("/");
@@ -161,6 +473,14 @@ function wordSortation (dictionary, itemArray, searchWords) {
                 count += 8;
         }
 
+        // If the word occurs within all splitted words, then it must be quite accurate
+        for (var i = 0; i < splitted.length; i++) {
+            if (splitted[i].indexOf(searchWords[0]) != -1) {
+                entry["counting"].push("-1 (splitted occurrence)");
+                count -= 2;
+            }
+        }
+
         // Only set the minus points once
         var minus = (function () {
             var counter = 0;
@@ -188,6 +508,8 @@ function wordSortation (dictionary, itemArray, searchWords) {
             }
         })();
 
+        entry["searchWords"] = searchWords;
+
         for (var i = 0; i < searchWords.length; i++) {
 
 
@@ -198,7 +520,7 @@ function wordSortation (dictionary, itemArray, searchWords) {
             entry["regexformula"] = "(\\/?(.?(?!\\/))+" + searchWords[i] + "(\\/|.+?\\/|$|.+$))";
             entry["regex"] = result;
             if (result != null) {
-                add(result[0].length);
+                add(result[0].length - searchWords[i].length);
             }
 
             /**
@@ -216,7 +538,7 @@ function wordSortation (dictionary, itemArray, searchWords) {
                 popularly
              */
 
-            if (entry["english"] == searchWords[i]) {
+            if (entry["cleanEnglish"] == searchWords[i]) {
                 minus(25);
                 continue;
             }
@@ -225,61 +547,62 @@ function wordSortation (dictionary, itemArray, searchWords) {
             // For example in : 政府 [zheng4 fu3] /government/CL:個|个[ge4]/
             // So, if we remove the CL:... we can also get a perfect match
             var r0 = new RegExp("^"+ searchWords[i] +"\\/CL");
-            if (r0.test(entry["english"])) {
+            if (r0.test(entry["cleanEnglish"])) {
                 minus(25);
                 continue;
             }
 
             // Sometimes there are words with additional information within ()
             var r1 = new RegExp("^"+ searchWords[i] +" \\(.+?\\)");
-            if (r1.test(entry["english"])) {
+            if (r1.test(entry["cleanEnglish"])) {
                 minus(25);
                 continue;
             }
 
             // Remember, to escape a /, normally requires \/, but js requires \\/....
             var r2 = new RegExp("^"+ searchWords[i] +"\\/");
-            if (r2.test(entry["english"])) {
+            if (r2.test(entry["cleanEnglish"])) {
                 minus(18);
                 continue;
             }
 
             var r3 = new RegExp("\\/" + searchWords[i] + "\\/");
-            if (r3.test(entry["english"])) {
+            if (r3.test(entry["cleanEnglish"])) {
                 minus(16);
                 continue;
             }
 
             var r4 = new RegExp("\\/" + searchWords[i] + "\\b[^ \\w]");
-            if (r4.test(entry["english"])) {
+            if (r4.test(entry["cleanEnglish"])) {
                 minus(14);
                 continue;
             }
 
             var r5 = new RegExp("^" + searchWords[i] + "\\b ");
-            if (r5.test(entry["english"])) {
+            if (r5.test(entry["cleanEnglish"])) {
                 minus(12);
                 continue;
             }
 
             var r6 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?(?=\\/)");
-            if (r6.test(entry["english"])) {
+            if (r6.test(entry["cleanEnglish"])) {
                 minus(7);
                 continue;
             }
 
             var r7 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?");
-            if (r7.test(entry["english"])) {
+            if (r7.test(entry["cleanEnglish"])) {
                 minus(5);
                 continue;
             }
 
             var r8 = new RegExp("\\b" + searchWords[i] + "\\b");
-            if (r8.test(entry["english"])) {
+            if (r8.test(entry["cleanEnglish"])) {
                 minus(3);
-                continue;
             }
         }
+
+        entry["minus"] = minus(); // We use this in the searchWordRelevancy function
 
         entry["counting"].push("-" + minus());
         count -= minus();
@@ -372,7 +695,12 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
             // High count is bad, high relevance is good. The lowest total is good.
             a["total"] = a["count"] - (Math.floor(Math.sqrt(a["relevance"])));
         }   else {
-            a["total"] = (a["count"] * 3) + 2;
+            // Don't penalize words who are very accurate
+            if (a["minus"] <= 5) {
+                a["total"] = (a["count"] * 3) + 2;
+            } else {
+                a["total"] = a["count"];
+            }
         }
 
         // Items with no relevance should be penalized
@@ -380,7 +708,11 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
             // High count is bad, high relevance is good. The lowest total is good.
             b["total"] = b["count"] - (Math.floor(Math.sqrt(b["relevance"])));
         }   else {
-            b["total"] = (b["count"] * 3) + 2;
+            if (b["minus"] <= 5) {
+                b["total"] = (b["count"] * 3) + 2;
+            } else {
+                b["total"] = b["count"];
+            }
         }
 
         if (a["total"] > b["total"]) {
@@ -395,17 +727,15 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
             }
         }
 
-        return -1;
+        return - 1;
     });
 
     // Filter out the ones with a big count difference, compared with the lowest. It is most likely an irrelevant entry
-    /*
-    var lowestCount = itemArray[0]["total"];
+    /*var lowestCount = itemArray[0]["total"];
     itemArray = itemArray.filter (function (item) {
 
         return !(item["total"] > lowestCount + 5);
-    });
-    */
+    });*/
 
     return itemArray;
 }

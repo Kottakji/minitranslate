@@ -70,8 +70,3 @@ chrome.storage.sync.get("active", function (result) {
         });
     }
 });
-
-
-
-
-

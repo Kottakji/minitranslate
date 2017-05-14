@@ -22,7 +22,10 @@
 
   "content_scripts": [
     {
-      "matches": ["http://*/*", "https://*/*"],
+      "matches": [
+        "http://*.org/*", "http://*.com/*", "http://*.co.uk/*", "http://*.org/*", "http://*.com.au/*", "http://*.net.au/*", "http://*.ca/*",
+        "https://*.org/*", "https://*.com/*", "https://*.co.uk/*", "https://*.org/*", "https://*.com.au/*", "https://*.net.au/*", "https://*.ca/*"
+      ],
       "js": ["translate.js", "word.js", "tests/samples.js"], // TODO remove tests
       "css": ["page.css"]
     }
