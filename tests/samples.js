@@ -3,6 +3,7 @@
 console.log("Starting Tests");
 
 var items = [];
+items.push(["there", 100501]);
 items.push(["using", 68643]); // 68643 is the ID of the correct word
 items.push(["economic", 79024]); // The line numbers - 30 is the correct ID
 items.push(["modern", 67470]);
@@ -11,14 +12,14 @@ items.push(["popularly", 77693]);
 items.push(["police", 93861]);
 items.push(["golden", 101909]);
 items.push(["female", 106471]);
-items.push(["there", 100501]);
 items.push(["medals", 66731]);
 items.push(["define", 1657]);
 items.push(["became", 94054]);
 items.push(["largest", 25413]);
-items.push(["album", 31316]); // TODO these two
+items.push(["album", 31316]);
 
 for (var i = 0; i < items.length; i++) {
+    console.time(items[i][0]);
     performLookup(items[i]);
 }
 
@@ -37,6 +38,7 @@ function performLookup (item) {
                 console.log(response[i]["traditional"] + " - " + response[i]["total"] + " (" + response[i]["count"] +  " + "+ response[i]["relevance"]+ ") - " + response[i]["ID"]);
             }
         }
+        console.timeEnd(item[0]);
     });
 }
 

@@ -356,21 +356,21 @@ function searchWordOptimization (word) {
 
     // Superlatives - large, larger, largest
     // 1 syllable = +er or +est and sometimes the final consonant should be doubled
-    result.push(word.replace(/(\w+?)er/, "$1")); // higher -> high
-    result.push(word.replace(/(\w+?)er/, "$1e")); // larger -> large
-    result.push(word.replace(/(\w+?)est/, "$1")); // highest -> high
-    result.push(word.replace(/(\w+?)est/, "$1e")); // largest -> large
+    result.push(word.replace(/(\w+?)er\b/, "$1")); // higher -> high
+    result.push(word.replace(/(\w+?)er\b/, "$1e")); // larger -> large
+    result.push(word.replace(/(\w+?)est\b/, "$1")); // highest -> high
+    result.push(word.replace(/(\w+?)est\b/, "$1e")); // largest -> large
 
-    result.push(word.replace(/([a-z])(\1)er/, "$1")); // bigger -> big
-    result.push(word.replace(/([a-z])(\1)er/, "$1$2")); // taller -> tall
-    result.push(word.replace(/([a-z])(\1)est/, "$1")); // tallest -> tall
-    result.push(word.replace(/([a-z])(\1)est/, "$1$2")); // biggest -> tall
+    result.push(word.replace(/([a-z])(\1)er\b/, "$1")); // bigger -> big
+    result.push(word.replace(/([a-z])(\1)er\b/, "$1$2")); // taller -> tall
+    result.push(word.replace(/([a-z])(\1)est\b/, "$1")); // tallest -> tall
+    result.push(word.replace(/([a-z])(\1)est\b/, "$1$2")); // biggest -> tall
 
     // Two syllables
-    result.push(word.replace(/(\w+?)ier/, "$1y")); // busier -> busy
-    result.push(word.replace(/(\w+?)iest/, "$1y")); // busiest -> busy
-    result.push(word.replace(/(\w+?)er/, "$1e")); // simpler -> simple
-    result.push(word.replace(/(\w+?)ier/, "$1y")); // simpler -> simple
+    result.push(word.replace(/(\w+?)ier\b/, "$1y")); // busier -> busy
+    result.push(word.replace(/(\w+?)iest\b/, "$1y")); // busiest -> busy
+    result.push(word.replace(/(\w+?)er\b/, "$1e")); // simpler -> simple
+    result.push(word.replace(/(\w+?)ier\b/, "$1y")); // simpler -> simple
 
     // -ly
     result.push(word.replace(/(\w+?)ly\b/, "$1"));
@@ -400,233 +400,217 @@ function searchWordOptimization (word) {
     return result.filter(function (item, pos) {return result.indexOf(item) == pos});
 }
 
-// Returns a sorted array from the selected array
-// Later we might show the first three or so additional meanings, as in Chinese there might be alternative correct ones
-function wordSortation (dictionary, itemArray, searchWords) {
+// Give each word a value
+// If the Hanzi is short, that is better
+// If the English is short, that is better
+// If it matches correctly or between / it is good
+function calculateValue (entry, searchWords) {
 
-    // Give each word a value
-    // If the Hanzi is short, that is better
-    // If the English is short, that is better
-    // If it matches correctly or between / it is good
-    var compare = function (entry) {
+    var count = 0;
+    switch (entry["traditional"].length) {
+        case 0:
+            count += 0;
+            break;
+        case 1:
+            // If it's an adjective or a verb, it should most likely be a 1 length Chinese character
+            // Adjectives/verbs are most likely the chanced words from above in the searchWordOptimization function
+            // Therefore we can easily check the searchWords count to see, with reasonable accuracy, if it really is
+            if (searchWords.length > 1) {
+                count += 15;
+            } else {
+                count += 36;
+            }
+            break;
+        case 2:
+            count += 28;
+            break;
+        case 3:
+            count += 38;
+            break;
+        case 4:
+            count += 48;
+            break;
+        default:
+            count += 58;
+    }
 
-        var count = 0;
-        switch (entry["traditional"].length) {
-            case 0:
-                count += 0;
-                break;
-            case 1:
-                // If it's an adjective or a verb, it should most likely be a 1 length Chinese character
-                // Adjectives/verbs are most likely the chanced words from above in the searchWordOptimization function
-                // Therefore we can easily check the searchWords count to see, with reasonable accuracy, if it really is
-                if (searchWords.length > 1) {
-                    count += 15;
-                } else {
-                    count += 36;
-                }
-                break;
-            case 2:
-                count += 28;
-                break;
-            case 3:
-                count += 38;
-                break;
-            case 4:
-                count += 48;
-                break;
-            default:
-                count += 58;
+    var splitted = entry["english"].split("/");
+    switch (splitted.length) {
+        case 0:
+            count += 0;
+            break;
+        case 1:
+            count += 0;
+            break;
+        case 2:
+            count += 2;
+            break;
+        case 3:
+            count += 4;
+            break;
+        case 4:
+            count += 6;
+            break;
+        case 5:
+            count += 7;
+            break;
+        default:
+            count += 8;
+    }
+
+    // If the word occurs within all splitted words, then it must be quite accurate
+    for (var i = 0; i < splitted.length; i++) {
+        if (splitted[i].indexOf(searchWords[0]) != -1) {
+            count -= 2;
+        }
+    }
+
+    // Only set the minus points once
+    var minus = (function () {
+        var counter = 0;
+
+        return function (number) {
+
+            if (counter < number) {
+               counter = number;
+            }
+
+            return counter;
+        }
+    })();
+
+    var add = (function () {
+        var counter = 0;
+
+        return function (number) {
+
+            if (counter < number) {
+               counter = number;
+            }
+
+            return counter;
+        }
+    })();
+
+    for (var i = 0; i < searchWords.length; i++) {
+
+
+        // Count the length of the text in which the string occurred (within /)
+        // Some words are found in long sentences describing many things, but not meaning the actual word
+        var regex = new RegExp("(\\/?(.?(?!\\/))+" + searchWords[i] + "(\\/|.+?\\/|$|.+$))", "igm");
+        var result = regex.exec(entry["cleanEnglish"]);
+        if (result != null) {
+            add(result[0].length - searchWords[i].length);
         }
 
-        var splitted = entry["english"].split("/");
-        switch (splitted.length) {
-            case 0:
-                count += 0;
-                break;
-            case 1:
-                count += 0;
-                break;
-            case 2:
-                count += 2;
-                break;
-            case 3:
-                count += 4;
-                break;
-            case 4:
-                count += 6;
-                break;
-            case 5:
-                count += 7;
-                break;
-            default:
-                count += 8;
+        /**
+         *  The order is based on this scheme
+         *  popular
+         *  popular/CL:
+            popular/something
+            something/popular/something
+            something/something/popular
+
+            popular something/something
+            something/popular something/something
+            something/something/popular something
+            something/something/something popular
+            popularly
+         */
+
+        if (entry["cleanEnglish"] == searchWords[i]) {
+            minus(25);
+            continue;
         }
 
-        // If the word occurs within all splitted words, then it must be quite accurate
-        for (var i = 0; i < splitted.length; i++) {
-            if (splitted[i].indexOf(searchWords[0]) != -1) {
-                count -= 2;
-            }
+        // Sometimes there are some additional options added in the english entry,
+        // For example in : 政府 [zheng4 fu3] /government/CL:個|个[ge4]/
+        // So, if we remove the CL:... we can also get a perfect match
+        var r0 = new RegExp("^"+ searchWords[i] +"\\/CL");
+        if (r0.test(entry["cleanEnglish"])) {
+            minus(25);
+            continue;
         }
 
-        // Only set the minus points once
-        var minus = (function () {
-            var counter = 0;
+        // Sometimes there are words with additional information within ()
+        var r1 = new RegExp("^"+ searchWords[i] +" \\(.+?\\)");
+        if (r1.test(entry["cleanEnglish"])) {
+            minus(25);
+            continue;
+        }
 
-            return function (number) {
+        // Remember, to escape a /, normally requires \/, but js requires \\/....
+        var r2 = new RegExp("^"+ searchWords[i] +"\\/");
+        if (r2.test(entry["cleanEnglish"])) {
+            minus(18);
+            continue;
+        }
 
-                if (counter < number) {
-                   counter = number;
-                }
+        var r3 = new RegExp("\\/" + searchWords[i] + "\\/");
+        if (r3.test(entry["cleanEnglish"])) {
+            minus(16);
+            continue;
+        }
 
-                return counter;
-            }
-        })();
+        var r4 = new RegExp("\\/" + searchWords[i] + "\\b[^ \\w]");
+        if (r4.test(entry["cleanEnglish"])) {
+            minus(14);
+            continue;
+        }
 
-        var add = (function () {
-            var counter = 0;
+        var r5 = new RegExp("^" + searchWords[i] + "\\b ");
+        if (r5.test(entry["cleanEnglish"])) {
+            minus(12);
+            continue;
+        }
 
-            return function (number) {
+        var r6 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?(?=\\/)");
+        if (r6.test(entry["cleanEnglish"])) {
+            minus(7);
+            continue;
+        }
 
-                if (counter < number) {
-                   counter = number;
-                }
+        var r7 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?");
+        if (r7.test(entry["cleanEnglish"])) {
+            minus(5);
+            continue;
+        }
 
-                return counter;
-            }
-        })();
+        var r8 = new RegExp("\\b" + searchWords[i] + "\\b");
+        if (r8.test(entry["cleanEnglish"])) {
+            minus(3);
+        }
+    }
 
+    entry["minus"] = minus(); // We use this in the searchWordRelevancy function
+
+    count -= minus();
+    count += add();
+
+    // Additional for verbs
+    // If the entry doesn't have "to" in front of the verb, it's a bad match
+    if (containsVerb) {
+
+        // We give all that don't match +25 (but we first add it, then detract it)
+        count += 25;
         for (var i = 0; i < searchWords.length; i++) {
 
-
-            // Count the length of the text in which the string occurred (within /)
-            // Some words are found in long sentences describing many things, but not meaning the actual word
-            var regex = new RegExp("(\\/?(.?(?!\\/))+" + searchWords[i] + "(\\/|.+?\\/|$|.+$))", "igm");
-            var result = regex.exec(entry["cleanEnglish"]);
-            if (result != null) {
-                add(result[0].length - searchWords[i].length);
-            }
-
-            /**
-             *  The order is based on this scheme
-             *  popular
-             *  popular/CL:
-                popular/something
-                something/popular/something
-                something/something/popular
-
-                popular something/something
-                something/popular something/something
-                something/something/popular something
-                something/something/something popular
-                popularly
-             */
-
-            if (entry["cleanEnglish"] == searchWords[i]) {
-                minus(25);
-                continue;
-            }
-
-            // Sometimes there are some additional options added in the english entry,
-            // For example in : 政府 [zheng4 fu3] /government/CL:個|个[ge4]/
-            // So, if we remove the CL:... we can also get a perfect match
-            var r0 = new RegExp("^"+ searchWords[i] +"\\/CL");
-            if (r0.test(entry["cleanEnglish"])) {
-                minus(25);
-                continue;
-            }
-
-            // Sometimes there are words with additional information within ()
-            var r1 = new RegExp("^"+ searchWords[i] +" \\(.+?\\)");
-            if (r1.test(entry["cleanEnglish"])) {
-                minus(25);
-                continue;
-            }
-
-            // Remember, to escape a /, normally requires \/, but js requires \\/....
-            var r2 = new RegExp("^"+ searchWords[i] +"\\/");
-            if (r2.test(entry["cleanEnglish"])) {
-                minus(18);
-                continue;
-            }
-
-            var r3 = new RegExp("\\/" + searchWords[i] + "\\/");
-            if (r3.test(entry["cleanEnglish"])) {
-                minus(16);
-                continue;
-            }
-
-            var r4 = new RegExp("\\/" + searchWords[i] + "\\b[^ \\w]");
-            if (r4.test(entry["cleanEnglish"])) {
-                minus(14);
-                continue;
-            }
-
-            var r5 = new RegExp("^" + searchWords[i] + "\\b ");
-            if (r5.test(entry["cleanEnglish"])) {
-                minus(12);
-                continue;
-            }
-
-            var r6 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?(?=\\/)");
-            if (r6.test(entry["cleanEnglish"])) {
-                minus(7);
-                continue;
-            }
-
-            var r7 = new RegExp("\\/\\b" + searchWords[i] + "\\b .+?");
-            if (r7.test(entry["cleanEnglish"])) {
-                minus(5);
-                continue;
-            }
-
-            var r8 = new RegExp("\\b" + searchWords[i] + "\\b");
-            if (r8.test(entry["cleanEnglish"])) {
-                minus(3);
+            var r8 = new RegExp("to " +searchWords[i] + ".?\\b");
+            if (r8.test(entry["english"])) {
+                count -= 25;
+                break;
             }
         }
+    }
 
-        entry["minus"] = minus(); // We use this in the searchWordRelevancy function
+    // Just push it up to 0, to make similar ones also appear
+    if (count < 0) {
+        count = 0;
+    }
 
-        count -= minus();
-        count += add();
+    entry["count"] = count;
 
-        // Additional for verbs
-        // If the entry doesn't have "to" in front of the verb, it's a bad match
-        if (containsVerb) {
-
-            // We give all that don't match +25 (but we first add it, then detract it)
-            count += 25;
-            for (var i = 0; i < searchWords.length; i++) {
-
-                var r8 = new RegExp("to " +searchWords[i] + ".?\\b");
-                if (r8.test(entry["english"])) {
-                    count -= 25;
-                    break;
-                }
-            }
-        }
-
-        // Just push it up to 0, to make similar ones also appear
-        if (count < 0) {
-            count = 0;
-        }
-
-        entry["count"] = count;
-
-        return count;
-    };
-
-    itemArray.sort(function (a, b) {
-        if (compare(a) > compare(b)) {
-
-            return 1;
-        }
-
-        return -1;
-    });
-    
-    return searchWordRelevancy(dictionary, itemArray.slice(0,30), searchWords);
+    return count;
 }
 
 // Search each possible word in the database to check for the occurrences and relevancy

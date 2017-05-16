@@ -33,7 +33,7 @@ function initiateDatabase() {
     // Required to do it via ajax
     getRequest('db/cedict_1_0_ts_utf-8_mdbg.txt', function (result) {
 
-        dictionary.createTable("items", ["traditional", "simplified", "pinyin", "english", "cleanEnglish"]);
+        dictionary.createTable("items", ["id", "traditional", "simplified", "pinyin", "english", "cleanEnglish"]);
 
         var lines = result.split("\n");
         var pattern = /(.+?) (.+?) (\[.+\]) \/(.+)\//i;
@@ -44,11 +44,12 @@ function initiateDatabase() {
                 matches = lines[i].match(pattern);
 
                 dictionary.insert("items", {
+                    id: i - 29, // - 29 to match the auto generated line numbers
                     traditional: matches[1],
                     simplified: matches[2],
                     pinyin: matches[3],
                     english: matches[4],
-                    cleanEnglish: matches[4].replace(/\(.+?\) ?/g, "").trim() // Used for searching through English words
+                    cleanEnglish: matches[4].replace(/\(.+?\) ?/g, "").trim() // Used for searching through English words,
                 });
             }
         }
@@ -70,6 +71,23 @@ function handleMessage (request, sender, sendResponse) {
 
     var searchWords = searchWordOptimization(request);
 
+    // Remembers the counted value of a word, which we can check on.
+    var count = (function () {
+        var counter = 99;
+
+        return function (number) {
+
+            if (counter > number) {
+               counter = number;
+            }
+
+            return counter;
+        }
+    })();
+
+    // Can't assign anything during the query, so store them here
+    var values = [];
+
     var result = dictionary.queryAll("items", {
         query: function (row) {
             for (var i = 0; i < searchWords.length; i++) {
@@ -78,7 +96,13 @@ function handleMessage (request, sender, sendResponse) {
                 var pattern = new RegExp("\\b" + searchWords[i]);
                 if (pattern.test(row.cleanEnglish)) {
 
-                    return true;
+                    var value = calculateValue(row, searchWords);
+                    if (count() + 15 > value) {
+                        count(value);
+                        values[row.id] = value;
+
+                        return true;
+                    }
                 }
             }
 
@@ -86,8 +110,23 @@ function handleMessage (request, sender, sendResponse) {
         }
     });
 
-    sendResponse(wordSortation(dictionary, result, searchWords));
+    // Now add the count values, as we couldn't add them during the query
+    for (var i = 0; i < result.length; i++) {
+        result[i]["count"] = values[result[i]["id"]];
+    }
 
+    result.sort(function (a, b) {
+        if (a["count"] > [b["count"]]) {
+
+            return 1;
+        }
+
+        return -1;
+    });
+
+    sendResponse(searchWordRelevancy(dictionary, result.slice(0,20), searchWords));
+
+    return true;
 }
 
 // Used for testing purposes in the tests folder
@@ -103,13 +142,13 @@ function handleMessageTest (searchWord, sender, sendResponse) {
                 return true;
             }
 
-
             return false;
         }
     });
 
     sendResponse(result);
 
+    return true;
 }
 
 // Vanilla Ajax
