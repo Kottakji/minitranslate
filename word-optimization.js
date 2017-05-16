@@ -697,7 +697,7 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
         var lowestCount = itemArray[0]["total"];
         itemArray = itemArray.filter (function (item) {
 
-            return !(item["total"] > lowestCount + 5);
+            return !(item["total"] > lowestCount + 7);
         });
     }
 
