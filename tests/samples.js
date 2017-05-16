@@ -26,7 +26,7 @@ for (var i = 0; i < items.length; i++) {
 // search("to use");
 
 function performLookup (item) {
-    chrome.extension.sendMessage(item[0], function (response) {
+    chrome.runtime.sendMessage(item[0], function (response) {
         console.log(response);
         if (response[0]["ID"] == item[1]) {
             console.log("Successfully matched: " + item[0]);
@@ -42,7 +42,7 @@ function performLookup (item) {
 
 function search (searchWord) {
 
-    chrome.extension.sendMessage(searchWord, function (response) {
+    chrome.runtime.sendMessage(searchWord, function (response) {
         console.log(response);
         for (var i = 0; i < response.length; i++) {
             console.log(response[i]["traditional"] + " - " + response[i]["english"]);

@@ -15,7 +15,7 @@ chrome.storage.sync.get("active", function (result) {
                         if (searched.lastIndexOf(match) == -1) {
                             searched.push(match);
 
-                            chrome.extension.sendMessage(match.trim(), function (response) {
+                            chrome.runtime.sendMessage(match.trim(), function (response) {
                                 if (response != null && response.length > 0) {
                                     element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
                                 }
