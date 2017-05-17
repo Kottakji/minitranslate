@@ -660,8 +660,10 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
             // Don't penalize words who are very accurate
             if (a["minus"] <= 5) {
                 a["total"] = (a["count"] * 3) + 2;
+            } else if (a["count"] <= 5) {
+                a["total"] = 6;
             } else {
-                a["total"] = a["count"];
+                a["total"] = a["count"] + 10;
             }
         }
 
@@ -672,8 +674,10 @@ function searchWordRelevancy (dictionary, itemArray, searchWords) {
         }   else {
             if (b["minus"] <= 5) {
                 b["total"] = (b["count"] * 3) + 2;
+            } else if (b["count"] <= 5) {
+                b["total"] = 6;
             } else {
-                b["total"] = b["count"];
+                b["total"] = b["count"] + 10;
             }
         }
 

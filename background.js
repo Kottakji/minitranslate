@@ -49,7 +49,7 @@ function initiateDatabase() {
                     simplified: matches[2],
                     pinyin: matches[3],
                     english: matches[4],
-                    cleanEnglish: matches[4].replace(/\(.+?\) ?/g, "").trim() // Used for searching through English words,
+                        cleanEnglish: matches[4].replace(/ ?\(.+?\) ?/g, "").trim() // Used for searching through English words,
                 });
             }
         }
