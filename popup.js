@@ -16,12 +16,12 @@ window.onload = function () {
 
     // The popup.js resets itself, therefore we toggle it in the start if disabled
     chrome.storage.sync.get("active", function (result) {
-        if (result["active"] === false) {
-           toggleStyling();
+        if (typeof result === "undefined" || result["active"] === false) {
+            toggleStyling();
         }
     });
 
-    function toggleStyling () {
+    function toggleStyling() {
         for (var i = 0; i < fillButtons.length; i++) {
             fillButtons[i].classList.toggle("red");
             fillButtons[i].classList.toggle("green");
@@ -34,19 +34,24 @@ window.onload = function () {
     // The Range input styling and logic
     var range = document.getElementById("range");
     var rangeText = document.getElementById("rangeText");
-    range.addEventListener("change", function() {
+    range.addEventListener("change", function () {
         rangeText.innerText = this.value;
         chrome.storage.sync.set({"amount": this.value})
     });
 
     // The default
     chrome.storage.sync.get("amount", function (result) {
-        range.value = result["amount"];
-        rangeText.innerText = result["amount"];
+        if (typeof result !== "undefined") {
+            range.value = result["amount"];
+            rangeText.innerText = result["amount"];
+        } else {
+            range.value = 5;
+            rangeText.innerText = 5;
+        }
     });
 
     // Enable button logic
-    button.addEventListener("click", function (e){
+    button.addEventListener("click", function (e) {
         chrome.storage.sync.get("active", function (result) {
 
             if (result["active"] === false) {
@@ -81,7 +86,7 @@ window.onload = function () {
     var simplified = document.getElementById("simplified");
     var traditional = document.getElementById("traditional");
     chrome.storage.sync.get("type", function (result) {
-        if (result["type"] == "simplified") {
+        if (typeof result !== "undefined" && result["type"] == "simplified") {
             simplified.checked = true;
         } else {
             traditional.checked = true;
