@@ -1,43 +1,53 @@
 {
+    "manifest_version": 2,
+    "name": "MiniTranslate",
+    "version": "1.14",
+    "description": "Translates a few words on the page in order to learn languages without much effort.",
 
-  "manifest_version": 2,
-  "name": "MiniTranslate",
-  "version": "1.13b",
-
-  "description": "Translates a few words on the page in order to learn languages without much effort.",
-
-  "background": {
-      "scripts": [
-        "bower_components/localStorageDB/localstoragedb.js",
-        "word-optimization.js",
-        "background.js"
-      ]
-  },
-
-  "browser_action" : {
-      "default_icon": "icons/favicon.png",
-      "default_popup": "popup.html",
-      "default_title": "MiniTranslate - Chinese"
-  },
-
-  "content_scripts": [
-    {
-      "matches": [
-        "http://*.org/*", "http://*.com/*", "http://*.co.uk/*", "http://*.org/*", "http://*.com.au/*", "http://*.net.au/*", "http://*.ca/*",
-        "https://*.org/*", "https://*.com/*", "https://*.co.uk/*", "https://*.org/*", "https://*.com.au/*", "https://*.net.au/*", "https://*.ca/*"
-      ],
-      "js": ["translate.js", "word.js"],
-      "css": ["page.css"]
+    "background": {
+        "scripts": [
+            "bower_components/localStorageDB/localstoragedb.js",
+            "word-optimization.js",
+            "background.js"
+        ]
+    },
+    "browser_action": {
+        "default_icon": "icons/favicon.png",
+        "default_popup": "popup.html",
+        "default_title": "MiniTranslate - Chinese"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "http://*.org/*",
+                "http://*.com/*",
+                "http://*.co.uk/*",
+                "http://*.org/*",
+                "http://*.com.au/*",
+                "http://*.net.au/*",
+                "http://*.ca/*",
+                "https://*.org/*",
+                "https://*.com/*",
+                "https://*.co.uk/*",
+                "https://*.org/*",
+                "https://*.com.au/*",
+                "https://*.net.au/*",
+                "https://*.ca/*"
+            ],
+            "js": [
+                "translate.js",
+                "word.js"
+            ],
+            "css": [
+                "page.css"
+            ]
+        }
+    ],
+    "permissions": [
+        "storage"
+    ],
+    "icons": {
+        "32": "icons/favicon.png",
+        "64": "icons/favicon_big.png"
     }
-  ],
-
-  "permissions": [
-    "storage"
-  ],
-
-  "icons": {
-    "32": "icons/favicon.png",
-    "64": "icons/favicon_big.png"
-  }
-
 }
