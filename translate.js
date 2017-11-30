@@ -19,24 +19,14 @@ chrome.storage.sync.get("active", function (result) {
                                 let p = new Promise((resolve, reject) => {
                                     chrome.runtime.sendMessage(match.trim(), function (response) {
                                         console.log(response);
-                                        // resolve(response);
+                                        resolve(response);
                                     })
                                 });
-                                p.then((success) => {
-                                    console.log("RESOLVED");
-                                    console.log(success);
-                                    console.log("123");
-                                });
-                                /* chrome.runtime.sendMessage(match.trim(), function (response) {
-                                    console.log(response);
+                                p.then((response) => { // TODO This promise might not be needed no? Check for speed
                                     if (response != null && response.length > 0) {
                                         element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
                                     }
-                                    response.then((success) => {
-                                        console.log("THEN AFTER RESPONSE");
-                                    })
                                 });
-                                */
                             }
                         }
                     })();

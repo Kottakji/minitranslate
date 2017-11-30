@@ -65,6 +65,8 @@ function initDatabase(event) {
         objectStore.createIndex("simplified", "simplified", {unique: false});
         objectStore.createIndex("pinyin", "pinyin", {unique: false});
         objectStore.createIndex("english", "english", {unique: false});
+        objectStore.createIndex("cleanEnglish", "cleanEnglish", {unique: false});
+        objectStore.createIndex("points", "points", {unique: false}); // Depending on the key, we count the importance
 
         objectStore.transaction.oncomplete = function () {
             var p = new Promise((resolve) => {
@@ -81,10 +83,8 @@ function initDatabase(event) {
                 let lines = result.split("\n");
                 let pattern = /(.+?) (.+?) (\[.+\]) \/(.+)\//i;
                 let matches = null;
-                let unwanted = /[\d.,"'\[\]]|variant/;
-                let inserted = [];
-                // for (let i = 0; i < lines.length; i++) {
-                for (let i = 0; i < 5000; i++) {
+                let unwanted = /[\d.,"'\[\]\(\)]|variant/;
+                for (let i = 0; i < lines.length; i++) {
                     if (lines[i][0] !== "#") {
                         matches = lines[i].match(pattern);
 
@@ -92,28 +92,29 @@ function initDatabase(event) {
                         for (let key of matches[4].split("/")) {
                             key = key.replace(/ ?\(.+?\) ?/g, "").trim().toLowerCase();
                             if (!unwanted.test(key)) {
-                                if (inserted.includes(key)) {
-                                    // Update or something
-                                    // TODO
-                                } else {
-                                    console.log("Added " + key);
-                                    itemObjectStore.add({
-                                        key: key,
-                                        traditional: matches[1],
-                                        simplified: matches[2],
-                                        pinyin: matches[3],
-                                        english: matches[4]
-                                    });
 
-                                    // Maintain the duplicates
-                                    inserted.push(key);
-                                }
+                                // TODO create this for each searchword!!!
 
+                                itemObjectStore.add({
+                                    key: key,
+                                    traditional: matches[1],
+                                    simplified: matches[2],
+                                    pinyin: matches[3],
+                                    english: matches[4],
+                                    cleanEnglish: key, // TODO change
+                                    points: calculateValue({
+                                        'traditional': matches[1],
+                                        'simplified': matches[2],
+                                        'pinyin': matches[3],
+                                        'english': matches[4],
+                                        'cleanEnglish': matches[4].replace(/ ?\(.+?\) ?/g, "").trim().toLowerCase(),
+                                    }, key)
+                                });
                             }
                         }
                     }
                 }
-            })
+            }).then(() => {console.log("SHOULD BE FINISHED")})
         }
     }
 }
@@ -127,10 +128,16 @@ function handleMessage(value, sender, sendResponse) {
         let itemObjectStore = transaction3.objectStore("items");
 
         let index = itemObjectStore.index("key");
-        let rq = index.get("single");
+            let rq = index.getAll(value); // Just search for the value
         rq.onsuccess = function () {
+
+            // Order the result based on count
+            rq.result.sort( function(a, b) {
+                return a.points - b.points; // Ascending
+            });
             sendResponse(rq.result);
-        }
+        };
+
     };
 
     return true;  // required....
