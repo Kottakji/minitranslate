@@ -1,13 +1,6 @@
 // Change to handleMessageTest if you want to test a single word in the tests/
 chrome.runtime.onMessage.addListener(handleMessage);
 
-// Initialize the database via localStorageDB
-var dictionary = new localStorageDB("dictionary", localStorage);
-
-// Check if the database was just created. Useful for initial database setup
-if(dictionary.isNew()) {
-    initiateDatabase();
-}
 
 // The local storage defaults, set default to true
 chrome.storage.sync.get("active", function (result) {
@@ -28,136 +21,129 @@ chrome.storage.sync.get("type", function (result) {
     }
 });
 
-function initiateDatabase() {
+// Init according to the docs
+window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction || {READ_WRITE: "readwrite"}; // This line should only be needed if it is needed to support the object's constants for older browsers
+window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
-    // Required to do it via ajax
-    getRequest('db/cedict_1_0_ts_utf-8_mdbg.txt', function (result) {
-
-        dictionary.createTable("items", ["id", "traditional", "simplified", "pinyin", "english", "cleanEnglish"]);
-
-        var lines = result.split("\n");
-        var pattern = /(.+?) (.+?) (\[.+\]) \/(.+)\//i;
-        var matches = null;
-
-        for (var i = 0; i < lines.length; i++) {
-            if (lines[i][0] !== "#") {
-                matches = lines[i].match(pattern);
-
-                dictionary.insert("items", {
-                    id: i - 29, // - 29 to match the auto generated line numbers
-                    traditional: matches[1],
-                    simplified: matches[2],
-                    pinyin: matches[3],
-                    english: matches[4],
-                        cleanEnglish: matches[4].replace(/ ?\(.+?\) ?/g, "").trim() // Used for searching through English words,
-                });
-            }
-        }
-
-        // All create/drop/insert/update/delete operations should be committed
-        dictionary.commit();
-
-    }, function (error) {
-        alert(error);
-    });
-
+if (!window.indexedDB) {
+    console.log("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
 }
 
-if (dictionary.tableCount() == 0) {
-    initiateDatabase();
-}
+// Initialize the database via localStorageDB
+// var dictionary = new localStorageDB("dictionary", localStorage);
 
-function handleMessage (request, sender, sendResponse) {
+var db;
+var request = window.indexedDB.open("dictionary", 1); // the version number is used for upgrading
 
-    var searchWords = searchWordOptimization(request);
+request.onerror = function (event) {
+    console.log("error");
+    console.log(event);
+};
 
-    // Remembers the counted value of a word, which we can check on.
-    var count = (function () {
-        var counter = 99;
+request.onsuccess = function (event) {
+    console.log("opened just fine");
+};
 
-        return function (number) {
+request.onupgradeneeded = function (event) {
 
-            if (counter > number) {
-               counter = number;
-            }
+    console.log("Upgrade needed");
+    initDatabase(event);
+};
 
-            return counter;
-        }
-    })();
+request.onblocked = function (event) {
+    console.log("ON BLOCKED");
+};
 
-    // Can't assign anything during the query, so store them here
-    var values = [];
+function initDatabase(event) {
+    db = event.target.result;
 
-    var result = dictionary.queryAll("items", {
-        query: function (row) {
-            for (var i = 0; i < searchWords.length; i++) {
-                // Search with \b beginning, because we don't want under to match thunder etc
-                // Remember, js requires an extra backslash for \b...
-                var pattern = new RegExp("\\b" + searchWords[i]);
-                if (pattern.test(row.cleanEnglish)) {
+    if (event.oldVersion < 1) { // You can do versioning here
+        var objectStore = db.createObjectStore("items", {autoIncrement: true});
+        objectStore.createIndex("key", "key", {unique: false});
+        objectStore.createIndex("traditional", "traditional", {unique: false});
+        objectStore.createIndex("simplified", "simplified", {unique: false});
+        objectStore.createIndex("pinyin", "pinyin", {unique: false});
+        objectStore.createIndex("english", "english", {unique: false});
 
-                    var value = calculateValue(row, searchWords);
-                    if (count() + 15 > value) {
-                        count(value);
-                        values[row.id] = value;
+        objectStore.transaction.oncomplete = function () {
+            var p = new Promise((resolve) => {
+                console.log("PROMISE STUFF");
+                getRequest('db/cedict_1_0_ts_utf-8_mdbg.txt', function (result) {
+                    resolve(result);
+                })
+            });
+            p.then((result) => {
+                console.log("THEN");
+                let transaction2 = db.transaction(["items"], "readwrite");
+                let itemObjectStore = transaction2.objectStore("items");
 
-                        return true;
+                let lines = result.split("\n");
+                let pattern = /(.+?) (.+?) (\[.+\]) \/(.+)\//i;
+                let matches = null;
+                let unwanted = /[\d.,"'\[\]]|variant/;
+                let inserted = [];
+                // for (let i = 0; i < lines.length; i++) {
+                for (let i = 0; i < 5000; i++) {
+                    if (lines[i][0] !== "#") {
+                        matches = lines[i].match(pattern);
+
+                        // Split the words of English by / (slash)
+                        for (let key of matches[4].split("/")) {
+                            key = key.replace(/ ?\(.+?\) ?/g, "").trim().toLowerCase();
+                            if (!unwanted.test(key)) {
+                                if (inserted.includes(key)) {
+                                    // Update or something
+                                    // TODO
+                                } else {
+                                    console.log("Added " + key);
+                                    itemObjectStore.add({
+                                        key: key,
+                                        traditional: matches[1],
+                                        simplified: matches[2],
+                                        pinyin: matches[3],
+                                        english: matches[4]
+                                    });
+
+                                    // Maintain the duplicates
+                                    inserted.push(key);
+                                }
+
+                            }
+                        }
                     }
                 }
-            }
-
-            return false;
+            })
         }
-    });
-
-    // Now add the count values, as we couldn't add them during the query
-    for (var i = 0; i < result.length; i++) {
-        result[i]["count"] = values[result[i]["id"]];
     }
-
-    result.sort(function (a, b) {
-        if (a["count"] > [b["count"]]) {
-
-            return 1;
-        }
-
-        return -1;
-    });
-
-    sendResponse(searchWordRelevancy(dictionary, result.slice(0,20), searchWords));
-
-    return true;
 }
 
-// Used for testing purposes in the tests folder
-// If you want to use it, change the handleMessage listener to this function
-function handleMessageTest (searchWord, sender, sendResponse) {
+function handleMessage(value, sender, sendResponse) {
 
-    var result = dictionary.queryAll("items", {
-        query: function (row) {
+    let request = window.indexedDB.open("dictionary", 1);
+    request.onsuccess = function (event) {
+        let db = event.target.result;
+        let transaction3 = db.transaction(["items"], "readonly");
+        let itemObjectStore = transaction3.objectStore("items");
 
-            var pattern = new RegExp("\\b" + searchWord);
-            if (pattern.test(row.cleanEnglish)) {
-
-                return true;
-            }
-
-            return false;
+        let index = itemObjectStore.index("key");
+        let rq = index.get("single");
+        rq.onsuccess = function () {
+            sendResponse(rq.result);
         }
-    });
+    };
 
-    sendResponse(result);
+    return true;  // required....
 
-    return true;
 }
 
 // Vanilla Ajax
 function getRequest(url, success, error) {
     var req = false;
-    try{
+    try {
         // most browsers
         req = new XMLHttpRequest();
-    } catch (e){
+    } catch (e) {
 
         return false;
     }
@@ -165,15 +151,17 @@ function getRequest(url, success, error) {
 
         return false;
     }
-    if (typeof success != 'function') success = function () {};
-    if (typeof error!= 'function') error = function () {};
+    if (typeof success != 'function') success = function () {
+    };
+    if (typeof error != 'function') error = function () {
+    };
 
-    req.onreadystatechange = function(){
-        if(req .readyState == 4){
+    req.onreadystatechange = function () {
+        if (req.readyState == 4) {
 
             return req.status === 200 ?
                 success(req.responseText) : error(req.status)
-            ;
+                ;
         }
     };
     req.open("GET", url, true);

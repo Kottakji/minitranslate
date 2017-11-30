@@ -4,6 +4,12 @@
     "version": "1.14",
     "description": "Translates a few words on the page in order to learn languages without much effort.",
 
+    "applications": {
+        "gecko": {
+            "id": "{2734d49e-12bf-457b-8111-9269fc43f7a4}"
+        }
+    },
+
     "background": {
         "scripts": [
             "bower_components/localStorageDB/localstoragedb.js",

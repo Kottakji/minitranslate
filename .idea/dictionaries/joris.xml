@@ -2,6 +2,8 @@
   <dictionary name="joris">
     <words>
       <w>hanzi</w>
+      <w>onsuccess</w>
+      <w>onupgradeneeded</w>
       <w>pīnyīn</w>
       <w>sortation</w>
     </words>

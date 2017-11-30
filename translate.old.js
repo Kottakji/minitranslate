@@ -15,28 +15,12 @@ chrome.storage.sync.get("active", function (result) {
                             // Checks for duplicates
                             if (searched.lastIndexOf(match) == -1) {
                                 searched.push(match);
-                                console.log(match.trim());
-                                let p = new Promise((resolve, reject) => {
-                                    chrome.runtime.sendMessage(match.trim(), function (response) {
-                                        console.log(response);
-                                        // resolve(response);
-                                    })
-                                });
-                                p.then((success) => {
-                                    console.log("RESOLVED");
-                                    console.log(success);
-                                    console.log("123");
-                                });
-                                /* chrome.runtime.sendMessage(match.trim(), function (response) {
-                                    console.log(response);
+
+                                chrome.runtime.sendMessage(match.trim(), function (response) {
                                     if (response != null && response.length > 0) {
                                         element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
                                     }
-                                    response.then((success) => {
-                                        console.log("THEN AFTER RESPONSE");
-                                    })
                                 });
-                                */
                             }
                         }
                     })();
