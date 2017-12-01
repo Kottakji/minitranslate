@@ -45,8 +45,8 @@ window.onload = function () {
             range.value = result["amount"];
             rangeText.innerText = result["amount"];
         } else {
-            range.value = 5;
-            rangeText.innerText = "5";
+            range.value = 10;
+            rangeText.innerText = "10";
         }
     });
 
