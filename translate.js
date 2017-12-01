@@ -15,16 +15,28 @@ chrome.storage.sync.get("active", function (result) {
                             // Checks for duplicates
                             if (searched.lastIndexOf(match) === -1) {
                                 searched.push(match);
-                                let p = new Promise((resolve) => {
+                                let p = new Promise((init, resolve) => {
                                     chrome.runtime.sendMessage(match.trim(), function (response) {
-                                        resolve(response);
+                                        if (response === "init") {
+                                            init();
+                                        } else {
+                                            resolve(response);
+                                        }
                                     })
                                 });
-                                p.then((response) => {
-                                    if (response != null && response.length > 0) {
-                                        element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
+                                p.then(
+                                    (init) => { // This is the init phase
+                                        window.title = "Mini Translate - Extension";
+                                        window.alert("Thank you for using MiniTranslate. \nWe will shortly start initializing" +
+                                            " the dictionary database. \nThis should take less than a minute, " +
+                                            "but might freeze your screen. \n\nPlease bear with it. Thank you.")
+                                    },
+                                    (response) => {
+                                        if (response != null && response.length > 0) {
+                                            element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
+                                        }
                                     }
-                                });
+                                );
                             }
                         }
                     })();

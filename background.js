@@ -4,19 +4,19 @@ chrome.runtime.onMessage.addListener(handleMessage);
 
 // The local storage defaults, set default to true
 chrome.storage.sync.get("active", function (result) {
-    if (typeof result["active"] === "undefined") {
+    if (typeof result === "undefined" || typeof result["active"] === "undefined") {
         chrome.storage.sync.set({"active": true});
     }
 });
 
 chrome.storage.sync.get("amount", function (result) {
-    if (typeof result["amount"] === "undefined") {
+    if (typeof result === "undefined" || typeof result["amount"] === "undefined") {
         chrome.storage.sync.set({"amount": 5});
     }
 });
 
 chrome.storage.sync.get("type", function (result) {
-    if (typeof result["type"] === "undefined") {
+    if (typeof result === "undefined" || typeof result["type"] === "undefined") {
         chrome.storage.sync.set({"type": "simplified"});
     }
 });
@@ -26,16 +26,8 @@ window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndex
 window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction || {READ_WRITE: "readwrite"}; // This line should only be needed if it is needed to support the object's constants for older browsers
 window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
-let db;
-let request = window.indexedDB.open("dictionary", 1); // the version number is used for upgrading
-
-request.onupgradeneeded = function (event) {
-
-    initDatabase(event);
-};
-
 function initDatabase(event) {
-    db = event.target.result;
+    let db = event.target.result;
 
     if (event.oldVersion < 1) { // You can do versioning here
         let objectStore = db.createObjectStore("items", {autoIncrement: true});
@@ -97,7 +89,16 @@ function initDatabase(event) {
 
 function handleMessage(value, sender, sendResponse) {
 
+    // On the first time opening
     let request = window.indexedDB.open("dictionary", 1);
+    request.onupgradeneeded = function (event) {
+        // Cut's of the first sender, but that is fine.
+        setTimeout(initDatabase(event), 2000);
+        sendResponse("init");
+
+        return true;
+    };
+
     request.onsuccess = function (event) {
         let db = event.target.result;
         let transaction3 = db.transaction(["items"], "readonly");
