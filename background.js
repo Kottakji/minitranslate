@@ -68,6 +68,7 @@ function initDatabase(event) {
                         // Split the words of English by / (slash)
                         for (let key of matches[4].split("/")) {
                             key = key.replace(/ ?\(.+?\) ?/g, "").trim().toLowerCase();
+
                             if (!unwanted.test(key)) {
 
                                 itemObjectStore.add({
@@ -106,8 +107,10 @@ function handleMessage(value, sender, sendResponse) {
         let rq = index.getAll(value); // Just search for the value
         rq.onsuccess = function () {
 
+            let result = rq.result;
+
             // Order the result based on count
-            rq.result.sort( function(a, b) {
+            result.sort(function (a, b) {
 
                 // If the points are the same, do some other query to check the relevancy of the words
                 if (a.points === b.points) {
@@ -116,12 +119,21 @@ function handleMessage(value, sender, sendResponse) {
 
                 return a.points - b.points; // Ascending
             });
-            sendResponse(rq.result);
+
+            // Remove the ones that have too big a difference in count
+            if (result.length > 0) {
+                let lowestCount = rq.result[0]["points"];
+                result = result.filter(function (item) {
+
+                    return !(item["points"] > lowestCount + 13);  // Used to be 7, but it included the relevancy + points
+                });
+            }
+
+            sendResponse(result);
         };
     };
 
     return true;  // required....
-
 }
 
 // Vanilla Ajax
