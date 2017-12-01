@@ -155,6 +155,11 @@
               <item name="MiniTranslate" type="b2602c69:ProjectViewProjectNode" />
               <item name="MiniTranslate" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="MiniTranslate" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MiniTranslate" type="462c0819:PsiDirectoryNode" />
+              <item name="web-ext-artifacts" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
