@@ -9,7 +9,8 @@
 web-ext run
 
 // Upload
+// Update the version number first!
 web-ext build
-web-ext sign --api-key <key> --api-secret <secret>
+web-ext sign --api-key <key or JWT issuer> --api-secret <JWT secret>
 
 // --> Then go to the dev options on the site
