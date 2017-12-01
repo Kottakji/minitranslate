@@ -1,5 +1,12 @@
 # Mini Translate
 
+
+#### Updates
+
+Dec 2017: Updated to v2 with major speed improvements and more words per page.
+
+#### Main
+
 Mini Translate aims to translate a few English words on every page to Chinese.
 This way it's easy to study a little bit every day, without having to read a whole article in Chinese,
 which can be tedious and demotivating.
