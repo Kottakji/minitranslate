@@ -1,19 +1,19 @@
 // The word element class that replaces the normal text into a chinese word plus extra hover styling
-var word = {
+let word = {
 
     replaceWord: function (originalWord, array, type) {
 
-        var text = array[0][type]; // Simplified or Traditional
+        let text = array[0][type]; // Simplified or Traditional
         text = " " + text + " "; // Add the two blank lines again b/c our pattern removes the spaces
 
-        var hoverText = "";
-        for (var i = 0; i < array.length; i++) {
+        let hoverText = "";
+        for (let i = 0; i < array.length; i++) {
 
             // Find out the color code
             // All these spans are for creating neat color coding based on the tone
             hoverText += "<span class='characterAndPinyin'>"; // This span makes sure that the character + pinyin stay on the same line
-            var words = array[i]["pinyin"].split(" ");
-            for (var c = 0; c < array[i][type].length; c++) {
+            let words = array[i]["pinyin"].split(" ");
+            for (let c = 0; c < array[i][type].length; c++) {
                 hoverText += "<span class='characterColor" + words[c].match(/\d/)[0] + "'>" + array[i][type][c] + "</span>";
             }
 
@@ -22,21 +22,17 @@ var word = {
             hoverText += "<span class='english'>\n" + measureWordToPinyin(array[i]["english"] + "</span>") + "\n";
         }
 
-        var element = originalWord + "<span class='mt-character'>(" + text + ") <span class='hovertext'>" + hoverText + "</span></span> ";
-
-        return element;
+        return  originalWord + "<span class='mt-character'>(" + text + ") <span class='hovertext'>" + hoverText + "</span></span> ";
     }
 };
 
 // In the English text, sometimes they add the measure word (CL)
 function measureWordToPinyin (english) {
 
-    var result = english.replace(/(\[.+?\])/gi, function(match, $1) {
+    return english.replace(/(\[.+?\])/gi, function(match, $1) {
 
         return "[" + pinyinToUnicodePinyin($1) + "]";
     });
-
-    return result;
 }
 
 // Translates pin1yin1 to Pīnyīn
@@ -45,10 +41,10 @@ function pinyinToUnicodePinyin (pinyin) {
     // Pinyin looks like [pin1 pin1]
     pinyin = pinyin.slice(1, -1);
 
-    var result = pinyin.replace(/(\w{0,3})([aieuo]|u:|r)(\w{0,3})(\d)/gi, function (match, $1, $2, $3, $4) {
+    return pinyin.replace(/(\w{0,3})([aieuo]|u:|r)(\w{0,3})(\d)/gi, function (match, $1, $2, $3, $4) {
 
         // Source from http://pinyin.info/unicode/unicode_test.html
-        var character = $2;
+        let character = $2;
         switch ($2 + $4) {
             case "a1":
                 character = "a&#772;";
@@ -147,13 +143,11 @@ function pinyinToUnicodePinyin (pinyin) {
         }
 
         // For example, pu3 doesn't have capture group 3
-        var result = $1 + character;
-        if (typeof $3 != "undefined") {
+        let result = $1 + character;
+        if (typeof $3 !== "undefined") {
             result += $3;
         }
 
         return result;
     });
-
-    return result;
 }

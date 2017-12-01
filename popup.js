@@ -1,13 +1,13 @@
-var enabledTitle = "MiniTranslate - Chinese";
-var disabledTitle = "MiniTranslate - Chinese (disabled)";
-var enabledIcon = "icons/favicon.png";
-var disabledIcon = "icons/favicon_disabled.png";
+let enabledTitle = "MiniTranslate - Chinese";
+let disabledTitle = "MiniTranslate - Chinese (disabled)";
+let enabledIcon = "icons/favicon.png";
+let disabledIcon = "icons/favicon_disabled.png";
 
 window.onload = function () {
 
-    var button = document.getElementById("toggle");
-    var fillButtons = document.getElementsByClassName("button-fill");
-    var textButtons = document.getElementsByClassName("button-text");
+    let button = document.getElementById("toggle");
+    let fillButtons = document.getElementsByClassName("button-fill");
+    let textButtons = document.getElementsByClassName("button-text");
 
     // The enable button styling
     button.onclick = function () {
@@ -22,18 +22,18 @@ window.onload = function () {
     });
 
     function toggleStyling() {
-        for (var i = 0; i < fillButtons.length; i++) {
+        for (let i = 0; i < fillButtons.length; i++) {
             fillButtons[i].classList.toggle("red");
             fillButtons[i].classList.toggle("green");
         }
-        for (var i = 0; i < textButtons.length; i++) {
+        for (let i = 0; i < textButtons.length; i++) {
             textButtons[i].style.display = textButtons[i].style.display === "none" ? "" : "none";
         }
     }
 
     // The Range input styling and logic
-    var range = document.getElementById("range");
-    var rangeText = document.getElementById("rangeText");
+    let range = document.getElementById("range");
+    let rangeText = document.getElementById("rangeText");
     range.addEventListener("change", function () {
         rangeText.innerText = this.value;
         chrome.storage.sync.set({"amount": this.value})
@@ -46,12 +46,12 @@ window.onload = function () {
             rangeText.innerText = result["amount"];
         } else {
             range.value = 5;
-            rangeText.innerText = 5;
+            rangeText.innerText = "5";
         }
     });
 
     // Enable button logic
-    button.addEventListener("click", function (e) {
+    button.addEventListener("click", function () {
         chrome.storage.sync.get("active", function (result) {
 
             if (result["active"] === false) {
@@ -83,10 +83,10 @@ window.onload = function () {
     });
 
     // Change between simplified and traditional
-    var simplified = document.getElementById("simplified");
-    var traditional = document.getElementById("traditional");
+    let simplified = document.getElementById("simplified");
+    let traditional = document.getElementById("traditional");
     chrome.storage.sync.get("type", function (result) {
-        if (typeof result !== "undefined" && result["type"] == "simplified") {
+        if (typeof result !== "undefined" && result["type"] === "simplified") {
             simplified.checked = true;
         } else {
             traditional.checked = true;

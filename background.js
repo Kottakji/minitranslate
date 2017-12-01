@@ -26,40 +26,19 @@ window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndex
 window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction || {READ_WRITE: "readwrite"}; // This line should only be needed if it is needed to support the object's constants for older browsers
 window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
-if (!window.indexedDB) {
-    console.log("Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available.");
-}
-
-// Initialize the database via localStorageDB
-// var dictionary = new localStorageDB("dictionary", localStorage);
-
-var db;
-var request = window.indexedDB.open("dictionary", 1); // the version number is used for upgrading
-
-request.onerror = function (event) {
-    console.log("error");
-    console.log(event);
-};
-
-request.onsuccess = function (event) {
-    console.log("opened just fine");
-};
+let db;
+let request = window.indexedDB.open("dictionary", 1); // the version number is used for upgrading
 
 request.onupgradeneeded = function (event) {
 
-    console.log("Upgrade needed");
     initDatabase(event);
-};
-
-request.onblocked = function (event) {
-    console.log("ON BLOCKED");
 };
 
 function initDatabase(event) {
     db = event.target.result;
 
     if (event.oldVersion < 1) { // You can do versioning here
-        var objectStore = db.createObjectStore("items", {autoIncrement: true});
+        let objectStore = db.createObjectStore("items", {autoIncrement: true});
         objectStore.createIndex("key", "key", {unique: false});
         objectStore.createIndex("traditional", "traditional", {unique: false});
         objectStore.createIndex("simplified", "simplified", {unique: false});
@@ -69,14 +48,12 @@ function initDatabase(event) {
         objectStore.createIndex("points", "points", {unique: false}); // Depending on the key, we count the importance
 
         objectStore.transaction.oncomplete = function () {
-            var p = new Promise((resolve) => {
-                console.log("PROMISE STUFF");
+            let p = new Promise((resolve) => {
                 getRequest('db/cedict_1_0_ts_utf-8_mdbg.txt', function (result) {
                     resolve(result);
                 })
             });
             p.then((result) => {
-                console.log("THEN");
                 let transaction2 = db.transaction(["items"], "readwrite");
                 let itemObjectStore = transaction2.objectStore("items");
 
@@ -92,8 +69,6 @@ function initDatabase(event) {
                         for (let key of matches[4].split("/")) {
                             key = key.replace(/ ?\(.+?\) ?/g, "").trim().toLowerCase();
                             if (!unwanted.test(key)) {
-
-                                // TODO create this for each searchword!!!
 
                                 itemObjectStore.add({
                                     key: key,
@@ -114,7 +89,7 @@ function initDatabase(event) {
                         }
                     }
                 }
-            }).then(() => {console.log("SHOULD BE FINISHED")})
+            })
         }
     }
 }
@@ -128,16 +103,21 @@ function handleMessage(value, sender, sendResponse) {
         let itemObjectStore = transaction3.objectStore("items");
 
         let index = itemObjectStore.index("key");
-            let rq = index.getAll(value); // Just search for the value
+        let rq = index.getAll(value); // Just search for the value
         rq.onsuccess = function () {
 
             // Order the result based on count
             rq.result.sort( function(a, b) {
+
+                // If the points are the same, do some other query to check the relevancy of the words
+                if (a.points === b.points) {
+                    return compareRelevancy(a, b);
+                }
+
                 return a.points - b.points; // Ascending
             });
             sendResponse(rq.result);
         };
-
     };
 
     return true;  // required....
@@ -146,7 +126,7 @@ function handleMessage(value, sender, sendResponse) {
 
 // Vanilla Ajax
 function getRequest(url, success, error) {
-    var req = false;
+    let req = false;
     try {
         // most browsers
         req = new XMLHttpRequest();
@@ -158,9 +138,9 @@ function getRequest(url, success, error) {
 
         return false;
     }
-    if (typeof success != 'function') success = function () {
+    if (typeof success !== 'function') success = function () {
     };
-    if (typeof error != 'function') error = function () {
+    if (typeof error !== 'function') error = function () {
     };
 
     req.onreadystatechange = function () {

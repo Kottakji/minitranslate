@@ -1,7 +1,7 @@
-var containsVerb = false;
+let containsVerb = false;
 
 // <editor-fold desc="An array of irregular English verbs">
-var irregular = [];
+let irregular = [];
 irregular["arose"] = ["arise"];
 irregular["arisen"] = ["arise"];
 irregular["awoke"] = ["awake"];
@@ -255,7 +255,7 @@ irregular["written"] = ["write"];
 // </editor-fold>
 
 // <editor-fold desc="An array of irregular English superlatives">
-var superlatives = [];
+let superlatives = [];
 superlatives["good"] = "better";
 superlatives["good"] = "best";
 superlatives["bad"] = "worse";
@@ -271,138 +271,6 @@ superlatives["little"] = "least";
 
 // </editor-fold>
 
-function searchWordOptimization(word) {
-
-    var result = [];
-    containsVerb = false;
-
-    // First check if it is an irregular verb and change it back to it's base form
-    for (var item in irregular) {
-        if (item == word) {
-            result.push(irregular[item]);
-            result.push("to " + irregular[item]); // Specifically for verbs
-            containsVerb = true;
-
-            return result;
-        }
-    }
-
-    // Check the superlative exceptions
-    for (var item in superlatives) {
-        if (item == word) {
-            result.push(superlatives[item]);
-
-            return result;
-        }
-    }
-
-    // If we want to support more languages, change it here
-
-    // Remove -ly etc if it contains that etc for each language to get the base of the word
-    // Countries to Country etc
-    // Happily to Happy etc
-
-    // English Plural
-    // Source: http://users.monash.edu/~damian/papers/HTML/Plurals.html
-
-    result.push(word); // Always added!
-
-    result.push(word.replace(/(\w+?)(as|ae|ata)\b/, "$2a"));
-
-    result.push(word.replace(/(\w+?)en\b/, "$1an"));
-
-    result.push(word.replace(/(\w+?)ches\b/, "$ch"));
-
-    result.push(word.replace(/(\w+?)(eaus|eaux)\b/, "$1eau"));
-
-    result.push(word.replace(/(\w+?)(ens|ina)\b/, "$1en"));
-
-    result.push(word.replace(/(\w+?)(exes|ices)\b/, "$1ex"));
-
-    result.push(word.replace(/(\w+?)ves\b/, "$1f"));
-    result.push(word.replace(/(\w+?)ves\b/, "$1fe"));
-
-    result.push(word.replace(/(\w+?)(ieus|ieux)\b/, "$1ieus"));
-
-    result.push(word.replace(/(\w+?)(es|ises|ides)\b/, "$1is"));
-
-    result.push(word.replace(/(\w+?)(ixes|ices)\b/, "$1ix"));
-
-    result.push(word.replace(/(\w+?)(nxes|nges)\b/, "$1nx"));
-
-    result.push(word.replace(/(\w+?)(oes|os|i)\b/, "$1o"));
-
-    result.push(word.replace(/(\w+?)(ons|a)\b/, "$1on"));
-
-    result.push(word.replace(/(\w+?)(oofs|ooves)\b/, "$1oof"));
-
-    result.push(word.replace(/(\w+?)ses\b/, "$1s"));
-
-    result.push(word.replace(/(\w+?)shes\b/, "$1sh"));
-
-    result.push(word.replace(/(\w+?)(a|ums)\b/, "$1um"));
-
-    result.push(word.replace(/(\w+?)(era|i|uses|ora|us)\b/, "$1us"));
-
-    result.push(word.replace(/(\w+?)xes\b/, "$1x"));
-
-    result.push(word.replace(/(\w+?)ies\b/, "$1y"));
-
-    result.push(word.replace(/(\w+?)zoa\b/, "$1zoon"));
-
-    result.push(word.replace(/(\w+?)(s|im)\b/, "$1")); // Is this one necessary?
-
-    result.push(word.replace(/(\w+?)ee(\w+)/, "$1oo$2")); // foot -> feet, tooth, teeth
-    // End plural
-
-    // Superlatives - large, larger, largest
-    // 1 syllable = +er or +est and sometimes the final consonant should be doubled
-    result.push(word.replace(/(\w+?)er\b/, "$1")); // higher -> high
-    result.push(word.replace(/(\w+?)er\b/, "$1e")); // larger -> large
-    result.push(word.replace(/(\w+?)est\b/, "$1")); // highest -> high
-    result.push(word.replace(/(\w+?)est\b/, "$1e")); // largest -> large
-
-    result.push(word.replace(/([a-z])(\1)er\b/, "$1")); // bigger -> big
-    result.push(word.replace(/([a-z])(\1)er\b/, "$1$2")); // taller -> tall
-    result.push(word.replace(/([a-z])(\1)est\b/, "$1")); // tallest -> tall
-    result.push(word.replace(/([a-z])(\1)est\b/, "$1$2")); // biggest -> tall
-
-    // Two syllables
-    result.push(word.replace(/(\w+?)ier\b/, "$1y")); // busier -> busy
-    result.push(word.replace(/(\w+?)iest\b/, "$1y")); // busiest -> busy
-    result.push(word.replace(/(\w+?)er\b/, "$1e")); // simpler -> simple
-    result.push(word.replace(/(\w+?)ier\b/, "$1y")); // simpler -> simple
-
-    // -ly
-    result.push(word.replace(/(\w+?)ly\b/, "$1"));
-
-    // In case we get some conjugated verbs in there
-    // Note, this doesn't prevent us from irregular verbs to get mixed in there, but most shouldn't come here
-    // We should remember that there is a verb, because we want to change our search later on, forcing to look for "to verb"
-    if (word.match(/(\w+?)ing\b/)) {
-        containsVerb = true;
-        result.push(word.replace(/(\w+?)ing\b/, "$1"));
-        result.push(word.replace(/(\w+?)ing\b/, "$1e")); // using -> use, notice -> noticing etc
-        result.push("to " + word.replace(/(\w+?)ing\b/, "$1")); // Specifically for verbs
-        result.push("to " + word.replace(/(\w+?)ing\b/, "$1e")); // Specifically for verbs
-    }
-
-    // Word + ed could actually be an adjective as well, but it is ok to treat it as a verb here
-    // http://www.englishpage.com/gerunds/adjective_infinitive_list.htm
-    if (word.match(/(\w+?)ed\b/)) {
-        containsVerb = true;
-        result.push(word.replace(/(\w+?)ed\b/, "$1"));
-        result.push(word.replace(/(\w+?)ed\b/, "$1e")); // Released -> release
-        result.push("to " + word.replace(/(\w+?)ed\b/, "$1")); // Specifically for verbs
-        result.push("to " + word.replace(/(\w+?)ed\b/, "$1e")); // Released -> to release
-    }
-
-    // Remove all duplicates
-    return result.filter(function (item, pos) {
-        return result.indexOf(item) == pos
-    });
-}
-
 // Give each word a value
 // If the Hanzi is short, that is better
 // If the English is short, that is better
@@ -415,15 +283,7 @@ function calculateValue(entry, searchWord) {
             count += 0;
             break;
         case 1:
-            // If it's an adjective or a verb, it should most likely be a 1 length Chinese character
-            // Adjectives/verbs are most likely the chanced words from above in the searchWordOptimization function
-            // Therefore we can easily check the searchWords count to see, with reasonable accuracy, if it really is
-            // if (searchWords.length > 1) { TODO check for verb/adj or noun etc
-            //count += 15;
-            //} else {
-            // count += 36;
-            //}
-            count += 15; // TODO remove
+            count += 15;
             break;
         case 2:
             count += 28;
@@ -481,7 +341,7 @@ function calculateValue(entry, searchWord) {
             count += result[0].length - searchWord.length;
         }
     } catch (error) {
-        console.log("Incorrect regex for " + searchWord);
+        console.log("Problem with the regex for " + searchWord);
         console.log(error);
     }
 
@@ -566,128 +426,82 @@ function calculateValue(entry, searchWord) {
 
 
     return returnCalculateValue(count);
-
-    /* TODO check if we need this for accuracy
-    entry["minus"] = minus(); // We use this in the searchWordRelevancy function TODO still needed?
-
-    // Additional for verbs
-    // If the entry doesn't have "to" in front of the verb, it's a bad match
-    if (containsVerb) {
-
-        // We give all that don't match +25 (but we first add it, then detract it)
-        count += 25;
-        for (var i = 0; i < searchWords.length; i++) {
-
-            var r8 = new RegExp("to " + searchWords[i] + ".?\\b");
-            if (r8.test(entry["english"])) {
-                count -= 25;
-                break;
-            }
-        }
-    }
-
-    */
 }
 
 function returnCalculateValue(count) {
     if (count < 0) {
         count = 0;
     }
-    // entry["count"] = count; TODO Needed?
+
     return count;
 }
 
-// Search each possible word in the database to check for the occurrences and relevancy
-function searchWordRelevancy(dictionary, itemArray, searchWords) {
+function compareRelevancy(a, b) {
 
-    // Double search here, but couldn't find a way to do it directly within the query...
-    var result = dictionary.queryAll("items", {
-        query: function (row) {
-            for (var i = 0; i < itemArray.length; i++) {
-                if (row.traditional.indexOf(itemArray[i]["traditional"]) !== -1) {
+    let aRelevancy = 0;
+    let bRelevancy = 0;
+    let request = window.indexedDB.open("dictionary", 1);
+    request.onsuccess = function (event) {
+        let db = event.target.result;
+        let transaction4 = db.transaction(["items"], "readonly");
+        let itemObjectStore = transaction4.objectStore("items");
 
-                    return true
-                }
-            }
-
-            return false;
-        }
-    });
-
-    // Check if the traditional occurrences and then check if the english search word is in it
-    for (var r = 0; r < result.length; r++) {
-        for (var i = 0; i < itemArray.length; i++) {
-            if (result[r]["traditional"].indexOf(itemArray[i]["traditional"]) !== -1) {
-                for (var s = 0; s < searchWords.length; s++) {
-                    if (result[r]["english"].indexOf(searchWords[s]) !== -1) {
-                        if (typeof itemArray[i]["relevance"] !== "undefined") {
-
-                            // Depending on the length of the characters, add a relevancy point
-                            itemArray[i]["relevance"] += (itemArray[i]["traditional"].length - 1) * 15 + 1;
-                        } else {
-
-                            itemArray[i]["relevance"] = 0;
-                        }
+        itemObjectStore.openCursor().onsuccess = function (e) {
+            let cursor = e.target.result;
+            if (cursor) {
+                if (cursor.value.traditional.includes(a.traditional)) {
+                    if (cursor.value.english.includes(a.english)) {
+                        aRelevancy += (cursor.value.length - 1) * 15 + 1;
                     }
                 }
+                if (cursor.value.traditional.includes(b.traditional)) {
+                    if (cursor.value.english.includes(b.english)) {
+                        bRelevancy += (cursor.value.length - 1) * 15 + 1;
+                    }
+                }
+                cursor.continue();
             }
-        }
-    }
+        };
 
-    itemArray.sort(function (a, b) {
+        // Sort it depending on the points and the relevancy
+        let aTotal = 0;
+        let bTotal = 0;
 
-        // Items with no relevance should be penalized
-        if (a["relevance"] > 0) {
-            // High count is bad, high relevance is good. The lowest total is good.
-            a["total"] = a["count"] - (Math.floor(Math.sqrt(a["relevance"])));
+        // FOR A Items with no relevancy should be penalized
+        if (aRelevancy > 0) {
+            // High count is bad, high relevance is good. The lowest total is good
+            aTotal = a.points - (Math.floor(Math.sqrt(aRelevancy)));
         } else {
-            // Don't penalize words who are very accurate
-            if (a["minus"] <= 5) {
-                a["total"] = (a["count"] * 3) + 2;
-            } else if (a["count"] <= 5) {
-                a["total"] = 6;
+            if (a.points <= 5) {
+                aTotal = 6;
             } else {
-                a["total"] = a["count"] + 10;
+                aTotal = a.count + 10;
             }
         }
 
-        // Items with no relevance should be penalized
-        if (b["relevance"] > 0) {
-            // High count is bad, high relevance is good. The lowest total is good.
-            b["total"] = b["count"] - (Math.floor(Math.sqrt(b["relevance"])));
+        // FOR B Items with no relevancy should be penalized
+        if (bRelevancy > 0) {
+            // High count is bad, high relevance is good. The lowest total is good
+            bTotal = b.points - (Math.floor(Math.sqrt(bRelevancy)));
         } else {
-            if (b["minus"] <= 5) {
-                b["total"] = (b["count"] * 3) + 2;
-            } else if (b["count"] <= 5) {
-                b["total"] = 6;
+            if (b.points <= 5) {
+                bTotal = 6;
             } else {
-                b["total"] = b["count"] + 10;
+                bTotal = b.count + 10;
             }
         }
 
-        if (a["total"] > b["total"]) {
-
+        if (aTotal > bTotal) {
             return 1;
         }
 
-        if (a["total"] == b["total"]) {
-            if (a["relevance"] < b["relevance"]) { // Higher relevance is the decisive factor if the totals are equal
+        if (aTotal === bTotal) {
+            if (aRelevancy < bRelevancy) { // Higher relevance is the decisive factor if the totals are equal
 
-                return 1;
+                return 1
             }
         }
 
         return -1;
-    });
-
-    // Filter out the ones with a big count difference, compared with the lowest. It is most likely an irrelevant entry
-    if (itemArray.length > 0) {
-        var lowestCount = itemArray[0]["total"];
-        itemArray = itemArray.filter(function (item) {
-
-            return !(item["total"] > lowestCount + 7);
-        });
-    }
-
-    return itemArray;
+    };
 }

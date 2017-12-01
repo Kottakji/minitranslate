@@ -3,26 +3,24 @@ chrome.storage.sync.get("active", function (result) {
     if (typeof result !== "undefined") {
         if (result["active"] !== false) {
             chrome.storage.sync.get("amount", function (result) {
-                var amount = result["amount"];
+                let amount = result["amount"];
 
                 chrome.storage.sync.get("type", function (result) {
-                    var type = result["type"]; // Traditional or Simplified
+                    let type = result["type"]; // Traditional or Simplified
 
-                    var customReplace = (function () {
-                        var searched = [];
+                    let customReplace = (function () {
+                        let searched = [];
 
                         return function (match, element) {
                             // Checks for duplicates
-                            if (searched.lastIndexOf(match) == -1) {
+                            if (searched.lastIndexOf(match) === -1) {
                                 searched.push(match);
-                                console.log(match.trim());
-                                let p = new Promise((resolve, reject) => {
+                                let p = new Promise((resolve) => {
                                     chrome.runtime.sendMessage(match.trim(), function (response) {
-                                        console.log(response);
                                         resolve(response);
                                     })
                                 });
-                                p.then((response) => { // TODO This promise might not be needed no? Check for speed
+                                p.then((response) => {
                                     if (response != null && response.length > 0) {
                                         element.innerHTML = element.innerHTML.replace(match, word.replaceWord(match, response, type));
                                     }
@@ -32,27 +30,27 @@ chrome.storage.sync.get("active", function (result) {
                     })();
 
                     // Get some nouns from the text and translate a few of them to the selected language
-                    var pattern = / ([a-z]\w{4,}) /gm;
+                    let pattern = / ([a-z]\w{4,}) /gm;
 
-                    var p = document.getElementsByTagName('p');
-                    var count = 0;
+                    let p = document.getElementsByTagName('p');
+                    let count = 0;
                     first_loop:
-                        for (var i = 0; i < p.length; i++) {
+                        for (let i = 0; i < p.length; i++) {
 
                             // Remove all the links from the text, as we don't want a character appearing inside a link
-                            var clone = p[i].cloneNode(true);
-                            var links = clone.getElementsByTagName("a");
+                            let clone = p[i].cloneNode(true);
+                            let links = clone.getElementsByTagName("a");
                             while (links.length > 0) {
                                 links[0].parentNode.removeChild(links[0]);
                             }
 
-                            var matches = clone.innerText.match(pattern);
+                            let matches = clone.innerText.match(pattern);
                             if (matches == null) {
 
                                 continue;
                             }
 
-                            for (var j = 1; j < matches.length; j++) {
+                            for (let j = 1; j < matches.length; j++) {
                                 customReplace(matches[j], p[i]);
                                 count++;
 

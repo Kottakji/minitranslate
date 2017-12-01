@@ -12,7 +12,6 @@
 
     "background": {
         "scripts": [
-            "bower_components/localStorageDB/localstoragedb.js",
             "word-optimization.js",
             "background.js"
         ]
