@@ -1,0 +1,4 @@
+helpful-file.txt
+*.xpi
+*.zip
+./web-ext-artifacts/

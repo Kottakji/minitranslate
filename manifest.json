@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "MiniTranslate",
-    "version": "2",
+    "version": "2.1",
     "description": "Translates a few words on the page in order to learn languages without much effort.",
 
     "background": {
